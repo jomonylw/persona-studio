@@ -8,7 +8,7 @@ import { useTranslations } from 'next-intl'
 import imageCompression from 'browser-image-compression'
 import Image from 'next/image'
 import { Button } from './ui/button'
-import { useManga } from './manga-context'
+import { useStudio } from './studio-context'
 
 interface ImageUploaderProps {
   image: string | null
@@ -32,7 +32,7 @@ export function ImageUploader({
 }: ImageUploaderProps) {
   const t = useTranslations('ImageUploader')
   const [isLoading, setIsLoading] = useState(false)
-  const { isUserUploadingRef } = useManga()
+  const { isUserUploadingRef } = useStudio()
 
   const onDrop = useCallback(
     async (acceptedFiles: File[], fileRejections: FileRejection[]) => {
@@ -47,7 +47,7 @@ export function ImageUploader({
         try {
           const compressedFile = await imageCompression(file, {
             maxSizeMB: 1,
-            maxWidthOrHeight: 512,
+            maxWidthOrHeight: 1024,
             useWebWorker: true,
           })
           const base64 = await fileToBase64(compressedFile)
@@ -63,7 +63,7 @@ export function ImageUploader({
         }
       }
     },
-    [t, setImage],
+    [t, setImage, isUserUploadingRef],
   )
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -79,12 +79,14 @@ export function ImageUploader({
   return (
     <div className={className}>
       {image ? (
-        <div className="relative group w-full h-36 rounded-lg overflow-hidden border">
+        <div className="relative group w-full rounded-lg overflow-hidden border">
           <Image
             src={image}
             alt="Uploaded preview"
-            fill
-            className="object-cover"
+            width={0}
+            height={0}
+            sizes="100vw"
+            className="w-full h-auto object-contain"
           />
           <Button
             variant="destructive"

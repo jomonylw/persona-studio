@@ -1,49 +1,33 @@
 import { locales } from '@/i18n'
-import { foundationPrompt } from './prompts/foundation'
-import { storyPlanPrompt } from './prompts/story-plan'
-import { assetCharacterPrompt } from './prompts/asset-character'
-import { assetEnvironmentPrompt } from './prompts/asset-environment'
-import { pagePrompt, pageGenerationPrompt } from './prompts/page'
-import { assetGenerationPrompt } from './prompts/asset'
-import { planPrompt } from './prompts/plan'
 import { finetunePrompt, finetuneWithReferencePrompt } from './prompts/finetune'
+import { personAppearancePromptTranslator } from './prompts/person-appearance-translator'
+import { photoPromptTranslator } from './prompts/photo-prompt-translator'
+import { photoshootPrompt } from './prompts/photoshoot'
+import { characterCardPrompt } from './prompts/character-card'
+import { environmentPrompt } from './prompts/environment'
 
 export type Locale = (typeof locales)[number]
 
 // A structured object for English prompts
 const getEnPrompts = (options?: { constraints?: string }) => ({
-  foundation: foundationPrompt.en(options),
-  storyPlan: storyPlanPrompt.en,
-  asset: {
-    character: assetCharacterPrompt.en,
-    environment: assetEnvironmentPrompt.en,
-    generation: assetGenerationPrompt.en,
-  },
-  page: {
-    base: pagePrompt.en,
-    generation: pageGenerationPrompt.en,
-  },
-  plan: planPrompt.en,
   finetune: finetunePrompt.en,
   finetuneWithReference: finetuneWithReferencePrompt.en,
+  personAppearance: personAppearancePromptTranslator.en,
+  photo: photoPromptTranslator.en,
+  photoshoot: photoshootPrompt.en,
+  characterCard: characterCardPrompt.en,
+  environment: environmentPrompt.en,
 })
 
 // A structured object for Chinese prompts
 const getZhPrompts = (options?: { constraints?: string }) => ({
-  foundation: foundationPrompt.zh(options),
-  storyPlan: storyPlanPrompt.zh,
-  asset: {
-    character: assetCharacterPrompt.zh,
-    environment: assetEnvironmentPrompt.zh,
-    generation: assetGenerationPrompt.zh,
-  },
-  page: {
-    base: pagePrompt.zh,
-    generation: pageGenerationPrompt.zh,
-  },
-  plan: planPrompt.zh,
   finetune: finetunePrompt.zh,
   finetuneWithReference: finetuneWithReferencePrompt.zh,
+  personAppearance: personAppearancePromptTranslator.zh,
+  photo: photoPromptTranslator.zh,
+  photoshoot: photoshootPrompt.zh,
+  characterCard: characterCardPrompt.zh,
+  environment: environmentPrompt.zh,
 })
 
 /**
@@ -53,9 +37,8 @@ const getZhPrompts = (options?: { constraints?: string }) => ({
  * @returns The prompt object for the specified locale.
  */
 export function getPrompts(locale: Locale, options?: { constraints?: string }) {
-  const prompts: Record<Locale, ReturnType<typeof getEnPrompts>> = {
-    en: getEnPrompts(options),
-    zh: getZhPrompts(options),
+  if (locale === 'zh') {
+    return getZhPrompts(options)
   }
-  return prompts[locale] || prompts.en
+  return getEnPrompts(options)
 }

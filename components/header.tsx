@@ -3,13 +3,13 @@
 import { useTranslations } from 'next-intl'
 import { LanguageSwitcher } from '@/components/language-switcher'
 import { ModeToggle } from '@/components/theme-toggle'
-import { HowToUseGuide } from '@/components/how-to-use-guide'
+// import { HowToUseGuide } from '@/components/how-to-use-guide'
 import { Button } from '@/components/ui/button'
 import { Github, Upload, Download, RotateCcw } from 'lucide-react'
 import { exportProject, importProject } from '@/lib/utils'
 import { useRef, useState } from 'react'
-import { IProjectState } from '@/types'
-import { useManga } from './manga-context'
+import { IStudioProject } from '@/types'
+import { useStudio } from './studio-context'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -21,13 +21,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
-import { GenerationSettingsDisplay } from './generation-settings-display'
+// import { GenerationSettingsDisplay } from './generation-settings-display'
 import { SettingsButton } from './settings-button'
 import { GenerationSettingsModal } from './generation-settings-modal'
 
 interface HeaderProps {
-  gatherProjectState: () => IProjectState
-  restoreProjectState: (newState: IProjectState) => void
+  gatherProjectState: () => IStudioProject
+  restoreProjectState: (newState: IStudioProject) => void
 }
 
 export function Header({
@@ -36,7 +36,7 @@ export function Header({
 }: HeaderProps) {
   const t = useTranslations('Index')
   const tDialog = useTranslations('ResetDialog')
-  const { resetProject } = useManga()
+  const { resetProject } = useStudio()
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
 
@@ -51,11 +51,16 @@ export function Header({
     const file = event.target.files?.[0]
     if (file) {
       try {
-        const importedState = await importProject(file)
+        console.log('Starting project import...')
+        const importedState = (await importProject(file)) as IStudioProject
+        console.log('Project import successful, state:', importedState)
         restoreProjectState(importedState)
+        console.log('restoreProjectState called.')
       } catch (error) {
         console.error('Failed to import project:', error)
-        // Optionally, show an error message to the user
+        alert(
+          `Error importing project: ${error instanceof Error ? error.message : String(error)}`,
+        )
       }
     }
   }

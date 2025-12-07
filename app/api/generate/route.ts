@@ -1,9 +1,15 @@
 import { GEMINI_IMAGE_MODEL_NAME, genAI } from '@/lib/gemini'
-import { Part, GenerationConfig } from '@google/genai'
+import { Part } from '@google/genai'
 import { NextResponse } from 'next/server'
 import sharp from 'sharp'
 import { getPrompts, Locale } from '@/lib/prompts'
-import { IAsset, IMangaPage } from '@/types'
+import {
+  IAsset,
+  IPersonAppearance,
+  ICharacterAsset,
+  IEnvironmentAsset,
+} from '@/types'
+import { photoPromptTranslator } from '@/lib/prompts/photo-prompt-translator'
 
 // Define the expected request body structure
 interface ContextAsset {
@@ -14,14 +20,10 @@ interface ContextAsset {
 
 interface GenerationRequest {
   prompt: string
+  characterDescriptor?: IPersonAppearance // New field for structured character data
   type?: 'finetune' | 'generate'
   locale?: Locale
   asset?: IAsset
-  page?: IMangaPage
-  // A single base64 encoded image for style reference
-  image?: string
-  // Array of base64 encoded images for context (e.g., previous pages)
-  baseImages?: string[]
   // Array of named assets for context (preferred over baseImages)
   referenceAssets?: ContextAsset[]
   // A single base64 encoded image to be finetuned/edited
@@ -31,6 +33,13 @@ interface GenerationRequest {
   aspectRatio?: string
   resolution?: string
   model?: string
+
+  // For photo generation
+  photoPrompt?: string
+  characters?: ICharacterAsset[]
+  environment?: IEnvironmentAsset
+  artStyle?: string
+  environmentPrompt?: string
 }
 
 interface ImageConfig {
@@ -52,12 +61,6 @@ async function compressImage(base64Image: string): Promise<string> {
 
     // Get original image metadata
     const originalMetadata = await sharp(imageBuffer).metadata()
-    console.log(
-      `Original Image:
-      Format: ${originalMetadata.format},
-      Size: ${originalMetadata.size ? (originalMetadata.size / 1024).toFixed(2) + ' KB' : 'N/A'},
-      Dimensions: ${originalMetadata.width}x${originalMetadata.height}`,
-    )
 
     // Compress and resize the image
     const compressedImageBuffer = await sharp(imageBuffer)
@@ -67,12 +70,6 @@ async function compressImage(base64Image: string): Promise<string> {
 
     // Get compressed image metadata
     const compressedMetadata = await sharp(compressedImageBuffer).metadata()
-    console.log(
-      `Compressed Image:
-      Format: ${compressedMetadata.format},
-      Size: ${compressedMetadata.size ? (compressedMetadata.size / 1024).toFixed(2) + ' KB' : 'N/A'},
-      Dimensions: ${compressedMetadata.width}x${compressedMetadata.height}`,
-    )
 
     return compressedImageBuffer.toString('base64')
   } catch (error) {
@@ -86,36 +83,67 @@ export async function POST(req: Request) {
   try {
     const body: GenerationRequest = await req.json()
     const {
-      prompt,
+      prompt: initialPrompt,
+      characterDescriptor,
       type = 'generate',
       locale = 'en',
       asset,
-      page,
       aspectRatio,
       resolution,
       model,
+      // for photo generation
+      photoPrompt,
+      characters,
+      environment,
+      artStyle,
+      environmentPrompt,
     } = body
-    let { image, baseImages, finetuneImage, referenceImage } = body
+    let { finetuneImage, referenceImage } = body
     const { referenceAssets } = body
 
-    // --- 1. Validate Input ---
+    // --- 1. Validate Input & Generate Prompt ---
+    let prompt = initialPrompt
+
+    // This is a photo generation request
+    if (photoPrompt && characters && environment) {
+      const resolvedArtStyle =
+        artStyle ||
+        (locale === 'zh' ? '电影感, 超写实' : 'cinematic, hyperrealistic')
+
+      prompt =
+        locale === 'zh'
+          ? photoPromptTranslator.zh(
+              characters,
+              environment,
+              photoPrompt,
+              resolvedArtStyle,
+            )
+          : photoPromptTranslator.en(
+              characters,
+              environment,
+              photoPrompt,
+              resolvedArtStyle,
+            )
+    }
+    // This is a single character descriptor generation
+    else if (characterDescriptor) {
+      const prompts = getPrompts(locale)
+      prompt = prompts.personAppearance(characterDescriptor)
+    } else if (environmentPrompt) {
+      const prompts = getPrompts(locale)
+      prompt = prompts.environment(environmentPrompt)
+    }
+
+    // --- 1b. Validate Input ---
     if (!prompt) {
       return NextResponse.json(
-        { error: 'Prompt is required.' },
+        { error: 'A prompt or character descriptor is required.' },
         { status: 400 },
       )
     }
 
     // --- 2. Compress Images ---
     const compressionPromises: Promise<void>[] = []
-
-    if (image) {
-      compressionPromises.push(
-        compressImage(image).then((compressed) => {
-          image = compressed
-        }),
-      )
-    }
 
     if (finetuneImage) {
       compressionPromises.push(
@@ -129,14 +157,6 @@ export async function POST(req: Request) {
       compressionPromises.push(
         compressImage(referenceImage).then((compressed) => {
           referenceImage = compressed
-        }),
-      )
-    }
-
-    if (baseImages && baseImages.length > 0) {
-      compressionPromises.push(
-        Promise.all(baseImages.map(compressImage)).then((compressed) => {
-          baseImages = compressed
         }),
       )
     }
@@ -158,19 +178,6 @@ export async function POST(req: Request) {
     // --- 3. Construct the Multi-Modal Prompt ---
     // The final prompt sent to the API will be an array of "parts"
     const promptParts: Part[] = []
-
-    // Add the main art style reference image first, if it exists
-    if (image) {
-      promptParts.push({
-        text: 'Image for style reference (art style, color palette, lighting):',
-      })
-      promptParts.push({
-        inlineData: {
-          mimeType: 'image/jpeg', // We converted to JPEG during compression
-          data: image,
-        },
-      })
-    }
 
     // If this is a finetuning request, add the image to be edited
     if (finetuneImage) {
@@ -211,24 +218,9 @@ export async function POST(req: Request) {
       })
     }
 
-    // If contextual base images are provided (usually previous pages), add them to the prompt parts
-    if (baseImages && baseImages.length > 0) {
-      promptParts.push({
-        text: 'Previous manga pages for story continuity:',
-      })
-      baseImages.forEach((imgBase64) => {
-        promptParts.push({
-          inlineData: {
-            mimeType: 'image/jpeg', // We converted to JPEG during compression
-            data: imgBase64,
-          },
-        })
-      })
-    }
-
     // Then add the textual prompt
     let finalPromptText = prompt
-    if (type === 'finetune' && (asset || page)) {
+    if (type === 'finetune' && asset) {
       const prompts = getPrompts(locale)
       const finetuneInstruction = prompt
       if (referenceImage) {
@@ -240,11 +232,16 @@ export async function POST(req: Request) {
 
     promptParts.push({ text: `Generation instructions: ${finalPromptText}` })
 
+    console.log('Final prompt text:', finalPromptText)
+
     // --- 4. Call the Gemini API ---
-    console.log('Sending request to Gemini API with prompt:', prompt)
 
     const config: ApiConfig = {}
     const imageConfig: ImageConfig = {}
+
+    console.log(
+      `Received settings - Aspect Ratio: ${aspectRatio}, Resolution: ${resolution}`,
+    )
 
     if (aspectRatio && aspectRatio !== 'Auto') {
       imageConfig.aspectRatio = aspectRatio
@@ -270,19 +267,14 @@ export async function POST(req: Request) {
       }
       return part
     })
-    console.log(
-      'promptParts content:',
-      JSON.stringify(sanitizedPromptParts, null, 2),
-    )
 
     const result = await genAI.models.generateContent({
       model: model || GEMINI_IMAGE_MODEL_NAME,
-      contents: [{ role: 'user', parts: promptParts }],
+      contents: promptParts,
       config,
     })
 
     // --- 5. Process the Response ---
-    // The API returns an array of candidates, we'll take the first one.
     const firstCandidate = result.candidates?.[0]
 
     if (

@@ -2,7 +2,7 @@ import { type ClassValue, clsx } from 'clsx'
 import { twMerge } from 'tailwind-merge'
 import JSZip from 'jszip'
 import { saveAs } from 'file-saver'
-import { IProjectState, IMangaPage, IPanel } from '@/types'
+import { IStudioProject } from '@/types'
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
@@ -25,16 +25,16 @@ export function extractJson(str: string): string | null {
   return null
 }
 
-export const exportProject = async (projectState: IProjectState) => {
+export const exportProject = async (projectState: IStudioProject) => {
   const zip = new JSZip()
 
   // 1. 创建 project.json，剥离掉图片数据
-  const projectDataToSave: IProjectState = {
+  const projectDataToSave: IStudioProject = {
     ...projectState,
     artStyleImage: projectState.artStyleImage
-      ? 'file:art-style-image.png'
+      ? 'file:assets/art-style-image.png'
       : undefined,
-    characters: projectState.characters.map((c) => ({
+    characters: (projectState.characters || []).map((c) => ({
       ...c,
       imageUrl: c.imageUrl ? `file:assets/character-${c.id}.png` : undefined,
       referenceImage: c.referenceImage
@@ -45,7 +45,7 @@ export const exportProject = async (projectState: IProjectState) => {
         imageUrl: `file:assets/character-${c.id}-history-${h.id}.png`,
       })),
     })),
-    environments: projectState.environments.map((e) => ({
+    environments: (projectState.environments || []).map((e) => ({
       ...e,
       imageUrl: e.imageUrl ? `file:assets/environment-${e.id}.png` : undefined,
       referenceImage: e.referenceImage
@@ -56,27 +56,15 @@ export const exportProject = async (projectState: IProjectState) => {
         imageUrl: `file:assets/environment-${e.id}-history-${h.id}.png`,
       })),
     })),
-    pages: projectState.pages.map((p) => ({
+    photos: (projectState.photos || []).map((p) => ({
       ...p,
-      finalImageUrl: p.finalImageUrl
-        ? `file:pages/page-${p.pageNumber}_final.png`
-        : undefined,
+      imageUrl: p.imageUrl ? `file:photos/photo-${p.id}.png` : undefined,
       referenceImage: p.referenceImage
-        ? `file:pages/page-${p.pageNumber}-reference.png`
+        ? `file:photos/photo-${p.id}-reference.png`
         : undefined,
       history: p.history?.map((h) => ({
         ...h,
-        imageUrl: `file:pages/page-${p.pageNumber}-history-${h.id}.png`,
-      })),
-      panels: p.panels.map((panel) => ({
-        ...panel,
-        imageUrl: panel.imageUrl
-          ? `file:pages/page-${p.pageNumber}_panel-${panel.panelNumber}.png`
-          : undefined,
-        history: panel.history?.map((h) => ({
-          ...h,
-          imageUrl: `file:pages/page-${p.pageNumber}_panel-${panel.panelNumber}-history-${h.id}.png`,
-        })),
+        imageUrl: `file:photos/photo-${p.id}-history-${h.id}.png`,
       })),
     })),
   }
@@ -84,13 +72,13 @@ export const exportProject = async (projectState: IProjectState) => {
 
   // 2. 添加所有图片资源
   const assetsFolder = zip.folder('assets')
-  const pagesFolder = zip.folder('pages')
+  const photosFolder = zip.folder('photos')
 
   // 添加艺术风格参考图
   if (projectState.artStyleImage) {
     const response = await fetch(projectState.artStyleImage)
     const blob = await response.blob()
-    zip.file('art-style-image.png', blob)
+    assetsFolder?.file('art-style-image.png', blob)
   }
 
   // 添加素材图片
@@ -121,50 +109,27 @@ export const exportProject = async (projectState: IProjectState) => {
     }
   }
 
-  // 添加分镜图片
-  for (const page of projectState.pages) {
-    // 添加页面最终图片
-    if (page.finalImageUrl) {
-      const response = await fetch(page.finalImageUrl)
+  // 添加照片图片
+  for (const photo of projectState.photos || []) {
+    if (photo.imageUrl) {
+      const response = await fetch(photo.imageUrl)
       const blob = await response.blob()
-      pagesFolder?.file(`page-${page.pageNumber}_final.png`, blob)
+      photosFolder?.file(`photo-${photo.id}.png`, blob)
     }
-    if (page.referenceImage) {
-      const response = await fetch(page.referenceImage)
+    if (photo.referenceImage) {
+      const response = await fetch(photo.referenceImage)
       const blob = await response.blob()
-      pagesFolder?.file(`page-${page.pageNumber}-reference.png`, blob)
+      photosFolder?.file(`photo-${photo.id}-reference.png`, blob)
     }
-    // 添加页面历史图片
-    if (page.history) {
-      for (const historyItem of page.history) {
+    // 添加照片历史图片
+    if (photo.history) {
+      for (const historyItem of photo.history) {
         const response = await fetch(historyItem.imageUrl)
         const blob = await response.blob()
-        pagesFolder?.file(
-          `page-${page.pageNumber}-history-${historyItem.id}.png`,
+        photosFolder?.file(
+          `photo-${photo.id}-history-${historyItem.id}.png`,
           blob,
         )
-      }
-    }
-
-    for (const panel of page.panels) {
-      if (panel.imageUrl) {
-        const response = await fetch(panel.imageUrl)
-        const blob = await response.blob()
-        pagesFolder?.file(
-          `page-${page.pageNumber}_panel-${panel.panelNumber}.png`,
-          blob,
-        )
-      }
-      // 添加分镜历史图片
-      if (panel.history) {
-        for (const historyItem of panel.history) {
-          const response = await fetch(historyItem.imageUrl)
-          const blob = await response.blob()
-          pagesFolder?.file(
-            `page-${page.pageNumber}_panel-${panel.panelNumber}-history-${historyItem.id}.png`,
-            blob,
-          )
-        }
       }
     }
   }
@@ -175,34 +140,47 @@ export const exportProject = async (projectState: IProjectState) => {
   })
 }
 
-export const importProject = async (file: File): Promise<IProjectState> => {
+export const importProject = async (file: File): Promise<IStudioProject> => {
+  console.log('importProject: Starting...')
   const zip = await JSZip.loadAsync(file)
+  console.log('importProject: ZIP file loaded.')
   const projectFile = zip.file('project.json')
 
   if (!projectFile) {
+    console.error('importProject: project.json not found in ZIP.')
     throw new Error('Invalid project file: project.json not found.')
   }
+  console.log('importProject: project.json found.')
 
-  const projectData: IProjectState = JSON.parse(
+  const projectData: IStudioProject = JSON.parse(
     await projectFile.async('string'),
   )
+  console.log('importProject: project.json parsed.', projectData)
 
   // 异步加载所有图片并替换 file: 占位符
   const loadImage = async (path: string | null | undefined) => {
-    if (!path || !path.startsWith('file:')) return path
+    if (!path || !path.startsWith('file:')) {
+      return path
+    }
     const filePath = path.substring(5)
+    console.log(`importProject: Loading image - ${filePath}`)
     const imageFile = zip.file(filePath)
     if (imageFile) {
       const blob = await imageFile.async('blob')
-      return URL.createObjectURL(blob)
+      const objectURL = URL.createObjectURL(blob)
+      console.log(
+        `importProject: Image loaded successfully - ${filePath} -> ${objectURL}`,
+      )
+      return objectURL
     }
+    console.warn(`importProject: Image file not found - ${filePath}`)
     return undefined
   }
 
   projectData.artStyleImage = await loadImage(projectData.artStyleImage)
 
   projectData.characters = await Promise.all(
-    projectData.characters.map(async (c) => ({
+    (projectData.characters || []).map(async (c) => ({
       ...c,
       imageUrl: (await loadImage(c.imageUrl)) || undefined,
       referenceImage: (await loadImage(c.referenceImage)) || undefined,
@@ -218,7 +196,7 @@ export const importProject = async (file: File): Promise<IProjectState> => {
   )
 
   projectData.environments = await Promise.all(
-    projectData.environments.map(async (e) => ({
+    (projectData.environments || []).map(async (e) => ({
       ...e,
       imageUrl: (await loadImage(e.imageUrl)) || undefined,
       referenceImage: (await loadImage(e.referenceImage)) || undefined,
@@ -233,26 +211,9 @@ export const importProject = async (file: File): Promise<IProjectState> => {
     })),
   )
 
-  projectData.pages = await Promise.all(
-    projectData.pages.map(async (p) => {
-      const newPanels = await Promise.all(
-        p.panels.map(async (panel) => {
-          return {
-            ...panel,
-            imageUrl: (await loadImage(panel.imageUrl)) || undefined,
-            history: panel.history
-              ? await Promise.all(
-                  panel.history.map(async (h) => ({
-                    ...h,
-                    imageUrl: (await loadImage(h.imageUrl))!,
-                  })),
-                )
-              : undefined,
-          }
-        }),
-      )
-
-      const pageHistory = p.history
+  projectData.photos = await Promise.all(
+    (projectData.photos || []).map(async (p) => {
+      const photoHistory = p.history
         ? await Promise.all(
             p.history.map(async (h) => ({
               ...h,
@@ -263,14 +224,16 @@ export const importProject = async (file: File): Promise<IProjectState> => {
 
       return {
         ...p,
-        panels: newPanels,
-        finalImageUrl: (await loadImage(p.finalImageUrl)) || undefined,
+        imageUrl: (await loadImage(p.imageUrl)) || undefined,
         referenceImage: (await loadImage(p.referenceImage)) || undefined,
-        history: pageHistory,
+        history: photoHistory,
       }
     }),
   )
 
+  console.log(
+    'importProject: All data processed. Returning final project data.',
+  )
   return projectData
 }
 

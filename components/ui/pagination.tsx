@@ -12,14 +12,15 @@ import { type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useManga } from "@/components/manga-context";
+import { useStudio } from "@/components/studio-context";
 
 interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof buttonVariants> {}
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => {
-  const { currentPage, totalPage, setCurrentPage, pages } = useManga();
+  const { currentPage, photos, setCurrentPage } = useStudio();
+  const totalPage = photos.length > 0 ? photos.length : 1;
   const [jumpToPage, setJumpToPage] = React.useState("");
 
   const handleJumpToPage = (e: React.FormEvent) => {
@@ -118,28 +119,14 @@ const PaginationLink = ({
   page,
   ...props
 }: { page: number; isActive: boolean } & Omit<ButtonProps, "page">) => {
-  const { setCurrentPage, pages } = useManga();
-  const pageData = pages.find(p => p.pageNumber === page);
-  const isGenerated = pageData?.isGenerated ?? false;
-
-  const getVariant = (): ButtonProps["variant"] => {
-    if (isActive) return "default";
-    if (isGenerated) return "secondary";
-    return "outline";
-  }
+  const { setCurrentPage } = useStudio();
 
   return (
     <Button
       aria-current={isActive ? "page" : undefined}
-      variant={getVariant()}
+      variant={isActive ? "default" : "outline"}
       size={size}
-      className={cn(
-        "h-9 w-9",
-        isGenerated && !isActive
-          ? "font-bold ring-2 ring-primary/70"
-          : "",
-        className
-      )}
+      className={cn("h-9 w-9", className)}
       onClick={() => setCurrentPage(page)}
       {...props}
     />
@@ -151,7 +138,7 @@ const PaginationPrevious = ({
   className,
   ...props
 }: React.ComponentProps<typeof Button>) => {
-  const { currentPage, setCurrentPage } = useManga();
+  const { currentPage, setCurrentPage } = useStudio();
   return (
     <Button
       aria-label="Go to previous page"
@@ -172,7 +159,8 @@ const PaginationNext = ({
   className,
   ...props
 }: React.ComponentProps<typeof Button>) => {
-  const { currentPage, totalPage, setCurrentPage } = useManga();
+  const { currentPage, photos, setCurrentPage } = useStudio();
+  const totalPage = photos.length > 0 ? photos.length : 1;
   return (
     <Button
       aria-label="Go to next page"

@@ -1,19 +1,20 @@
-import { MangaProvider } from '@/components/manga-context'
+'use client'
+
+import { StudioProvider } from '@/components/studio-context'
 import { ReactNode } from 'react'
-export default async function ProjectProvider({
+
+export default function ProjectProvider({
   children,
+  textModel,
+  imageModel,
 }: {
   children: ReactNode
+  textModel: string
+  imageModel: string
 }) {
-  const defaultTextModel = process.env.GEMINI_TEXT_MODEL
-  const defaultImageModel = process.env.GEMINI_IMAGE_MODEL
-
   return (
-    <MangaProvider
-      defaultTextModel={defaultTextModel}
-      defaultImageModel={defaultImageModel}
-    >
+    <StudioProvider textModel={textModel} imageModel={imageModel}>
       {children}
-    </MangaProvider>
+    </StudioProvider>
   )
 }

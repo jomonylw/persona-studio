@@ -142,8 +142,7 @@ export function ImageFinetuneModal({
               <div className="p-2 flex flex-row md:block space-x-2 md:space-x-0 md:space-y-2 whitespace-nowrap md:whitespace-normal">
                 {imageHistory
                   .filter((item) => item.imageUrl)
-                  .slice()
-                  .reverse()
+                  .toReversed()
                   .map((historyItem) => {
                     const isSelected = selectedHistoryId === historyItem.id
                     return (

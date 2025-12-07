@@ -8,13 +8,15 @@ import { ImageFinetuneModal } from './image-finetune-modal'
 import { toast } from 'sonner'
 
 interface AssetListProps {
-  title: string
+  title?: string
   assets: IAsset[]
   selectedAssetName?: string
   onAssetClick?: (asset: IAsset) => void
   onDeleteAsset?: (assetId: string) => void
   onUpdateAsset: (asset: IAsset) => void
   imageModel?: string
+  aspectRatio?: string
+  resolution?: string
 }
 
 export function AssetList({
@@ -25,6 +27,8 @@ export function AssetList({
   onDeleteAsset,
   onUpdateAsset,
   imageModel,
+  aspectRatio,
+  resolution,
 }: AssetListProps) {
   const t = useTranslations('AssetList')
   const [modalOpen, setModalOpen] = useState(false)
@@ -104,6 +108,8 @@ export function AssetList({
           referenceImage: base64ReferenceImage,
           locale,
           model: imageModel,
+          aspectRatio,
+          resolution,
         }),
       })
 
@@ -212,7 +218,6 @@ export function AssetList({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold">{title}</h3>
       {completeAssets.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           {t('noAssets', { assetType })}

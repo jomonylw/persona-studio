@@ -16,9 +16,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
-import { useManga } from './manga-context'
+import { useStudio } from './studio-context'
 import { Separator } from '@/components/ui/separator'
 import { RotateCw } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { toast } from 'sonner'
 
 interface GenerationSettingsModalProps {
   isOpen: boolean
@@ -44,22 +46,41 @@ export const GenerationSettingsModal = ({
   onClose,
 }: GenerationSettingsModalProps) => {
   const t = useTranslations('GenerationSettings')
-  const {
-    aspectRatio,
-    setAspectRatio,
-    resolution,
-    setResolution,
-    textModel,
-    setTextModel,
-    imageModel,
-    setImageModel,
-    textModels,
-    setTextModels,
-    imageModels,
-    setImageModels,
-    fetchModels,
-    isFetchingModels,
-  } = useManga()
+  const { aspectRatio, resolution, textModel, imageModel, setProject } =
+    useStudio()
+
+  const [textModels, setTextModels] = useState<string[]>([])
+  const [imageModels, setImageModels] = useState<string[]>([])
+  const [isFetchingModels, setIsFetchingModels] = useState(false)
+
+  const fetchModels = async () => {
+    setIsFetchingModels(true)
+    try {
+      const response = await fetch('/api/models')
+      if (!response.ok) {
+        throw new Error('Failed to fetch models')
+      }
+      const data = await response.json()
+      setTextModels(data.textModels)
+      setImageModels(data.imageModels)
+      toast.success(t('modelsUpdated'))
+    } catch (error) {
+      console.error('Error fetching models:', error)
+      toast.error(t('modelsUpdateFailed'))
+    } finally {
+      setIsFetchingModels(false)
+    }
+  }
+
+  useEffect(() => {
+    // The effect should only run once when the component mounts.
+    fetchModels()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
+  const handleValueChange = (key: string, value: string) => {
+    setProject((prev) => ({ ...prev, [key]: value }))
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -75,7 +96,10 @@ export const GenerationSettingsModal = ({
                 <Label htmlFor="aspect-ratio" className="text-right">
                   {t('aspectRatio')}
                 </Label>
-                <Select value={aspectRatio} onValueChange={setAspectRatio}>
+                <Select
+                  value={aspectRatio}
+                  onValueChange={(v) => handleValueChange('aspectRatio', v)}
+                >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder={t('selectAspectRatio')} />
                   </SelectTrigger>
@@ -112,7 +136,10 @@ export const GenerationSettingsModal = ({
                 <Label htmlFor="resolution" className="text-right">
                   {t('resolution')}
                 </Label>
-                <Select value={resolution} onValueChange={setResolution}>
+                <Select
+                  value={resolution}
+                  onValueChange={(v) => handleValueChange('resolution', v)}
+                >
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder={t('selectResolution')} />
                   </SelectTrigger>
@@ -152,12 +179,15 @@ export const GenerationSettingsModal = ({
                 <Label htmlFor="text-model" className="text-right">
                   {t('textModel')}
                 </Label>
-                <Select value={textModel} onValueChange={setTextModel}>
+                <Select
+                  value={textModel}
+                  onValueChange={(v) => handleValueChange('textModel', v)}
+                >
                   <SelectTrigger className="col-span-3 truncate">
                     <SelectValue placeholder={t('selectTextModel')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {textModels.map((model) => (
+                    {textModels.map((model: string) => (
                       <SelectItem key={model} value={model}>
                         <span className="truncate">{model}</span>
                       </SelectItem>
@@ -169,12 +199,15 @@ export const GenerationSettingsModal = ({
                 <Label htmlFor="image-model" className="text-right">
                   {t('imageModel')}
                 </Label>
-                <Select value={imageModel} onValueChange={setImageModel}>
+                <Select
+                  value={imageModel}
+                  onValueChange={(v) => handleValueChange('imageModel', v)}
+                >
                   <SelectTrigger className="col-span-3 truncate">
                     <SelectValue placeholder={t('selectImageModel')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {imageModels.map((model) => (
+                    {imageModels.map((model: string) => (
                       <SelectItem key={model} value={model}>
                         <span className="truncate">{model}</span>
                       </SelectItem>
