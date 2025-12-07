@@ -105,7 +105,7 @@ export async function POST(req: Request) {
     let prompt = initialPrompt
 
     // This is a photo generation request
-    if (photoPrompt && characters && environment) {
+    if (photoPrompt && characters) {
       const resolvedArtStyle =
         artStyle ||
         (locale === 'zh' ? '电影感, 超写实' : 'cinematic, hyperrealistic')
@@ -114,15 +114,15 @@ export async function POST(req: Request) {
         locale === 'zh'
           ? photoPromptTranslator.zh(
               characters,
-              environment,
               photoPrompt,
               resolvedArtStyle,
+              environment,
             )
           : photoPromptTranslator.en(
               characters,
-              environment,
               photoPrompt,
               resolvedArtStyle,
+              environment,
             )
     }
     // This is a single character descriptor generation

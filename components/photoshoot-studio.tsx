@@ -25,6 +25,13 @@ import {
 import { Checkbox } from '@/components/ui/checkbox'
 import { Label } from '@/components/ui/label'
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import {
   ICharacterAsset,
   IEnvironmentAsset,
   IImageHistory,
@@ -32,6 +39,11 @@ import {
 } from '@/types'
 import { useStudio } from './studio-context'
 import { ImageFinetuneModal } from './image-finetune-modal'
+import {
+  getArtStyleDescription,
+  getStyles,
+  PhotoshootStyle,
+} from '@/lib/prompts/photoshoot'
 
 export function PhotoshootStudio() {
   const t = useTranslations('PhotoshootStudio')
@@ -47,10 +59,14 @@ export function PhotoshootStudio() {
     resolution,
   } = useStudio()
 
-  const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<string>('')
+  const [selectedEnvironmentId, setSelectedEnvironmentId] = useState<
+    string | null
+  >(null)
   const [selectedCharacterIds, setSelectedCharacterIds] = useState<Set<string>>(
     new Set(),
   )
+  const [selectedStyle, setSelectedStyle] =
+    useState<PhotoshootStyle>('candid_street')
   const [prompt, setPrompt] = useState('')
   const [activePhotoId, setActivePhotoId] = useState<string | null>(null)
   const [isInspiring, setIsInspiring] = useState(false)
@@ -84,14 +100,14 @@ export function PhotoshootStudio() {
         }
         setPrompt(promptToShow)
         setSelectedCharacterIds(new Set(lastPhoto.characterIds))
-        setSelectedEnvironmentId(lastPhoto.environmentId)
+        setSelectedEnvironmentId(lastPhoto.environmentId || null)
       }
     } else {
       // If there are no photos, reset the studio state
       setActivePhotoId(null)
       setPrompt('')
       setSelectedCharacterIds(new Set())
-      setSelectedEnvironmentId('')
+      setSelectedEnvironmentId(null)
     }
     // We only want to run this effect when the photos array is replaced,
     // such as on project import. Not on every photo addition/deletion.
@@ -108,9 +124,9 @@ export function PhotoshootStudio() {
         selectedCharacterIds.has(c.id),
       )
 
-      if (!selectedEnvironment || selectedCharacters.length === 0) {
+      if (selectedCharacters.length === 0) {
         // TODO: Show a toast notification
-        console.error('Please select characters and an environment first.')
+        console.error('Please select characters first.')
         return
       }
 
@@ -140,10 +156,12 @@ export function PhotoshootStudio() {
         })),
       )
 
-      const environmentWithBase64 = {
-        ...selectedEnvironment,
-        imageUrl: await urlToPureBase64(selectedEnvironment.imageUrl),
-      }
+      const environmentWithBase64 = selectedEnvironment
+        ? {
+            ...selectedEnvironment,
+            imageUrl: await urlToPureBase64(selectedEnvironment.imageUrl),
+          }
+        : undefined
 
       const response = await fetch('/api/inspire/photoshoot', {
         method: 'POST',
@@ -153,6 +171,8 @@ export function PhotoshootStudio() {
           environment: environmentWithBase64,
           aspectRatio,
           locale,
+          style: selectedStyle,
+          userIdea: prompt,
         }),
       })
 
@@ -192,7 +212,7 @@ export function PhotoshootStudio() {
         selectedCharacterIds.has(c.id),
       )
 
-      if (!selectedEnvironment || selectedCharacters.length === 0) {
+      if (selectedCharacters.length === 0) {
         console.error('Selection is not valid')
         return
       }
@@ -215,7 +235,9 @@ export function PhotoshootStudio() {
         return dataUrl.split(',')[1]
       }
 
-      const allAssets = [...selectedCharacters, selectedEnvironment]
+      const allAssets = selectedEnvironment
+        ? [...selectedCharacters, selectedEnvironment]
+        : [...selectedCharacters]
       const referenceAssetPromises = allAssets
         .filter((asset) => asset.imageUrl)
         .map(async (asset) => {
@@ -239,7 +261,7 @@ export function PhotoshootStudio() {
 
       const requestBody = {
         characterIds: Array.from(selectedCharacterIds),
-        environmentId: selectedEnvironmentId,
+        environmentId: selectedEnvironmentId || '',
         photoPrompt: finetunePrompt || prompt,
         characters: selectedCharacters.map(
           ({ id, name, descriptor, type }) => ({
@@ -249,16 +271,18 @@ export function PhotoshootStudio() {
             type,
           }),
         ),
-        environment: {
-          id: selectedEnvironment.id,
-          name: selectedEnvironment.name,
-          prompt: selectedEnvironment.prompt,
-          type: selectedEnvironment.type,
-        },
+        environment: selectedEnvironment
+          ? {
+              id: selectedEnvironment.id,
+              name: selectedEnvironment.name,
+              prompt: selectedEnvironment.prompt,
+              type: selectedEnvironment.type,
+            }
+          : undefined,
         referenceAssets,
         finetuneImage: finetuneImageBase64,
         locale,
-        artStyle: 'cinematic, hyperrealistic',
+        artStyle: getArtStyleDescription(selectedStyle, locale),
         aspectRatio: aspectRatio,
         resolution: resolution,
       }
@@ -302,7 +326,7 @@ export function PhotoshootStudio() {
           id: `photo-${Date.now()}`,
           prompt: prompt,
           characterIds: Array.from(selectedCharacterIds),
-          environmentId: selectedEnvironmentId,
+          environmentId: selectedEnvironmentId || '',
           imageUrl: result.imageUrl,
           history: [newHistoryEntry],
           selectedHistoryId: newHistoryEntry.id,
@@ -450,7 +474,11 @@ export function PhotoshootStudio() {
                         ? 'ring-2 ring-offset-2 ring-blue-500'
                         : ''
                     }`}
-                    onClick={() => setSelectedEnvironmentId(env.id)}
+                    onClick={() =>
+                      setSelectedEnvironmentId(
+                        selectedEnvironmentId === env.id ? null : env.id,
+                      )
+                    }
                   >
                     <Image
                       src={env.imageUrl!}
@@ -506,19 +534,40 @@ export function PhotoshootStudio() {
             </div>
           </div>
           <div>
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between mb-2">
               <label htmlFor="story-prompt" className="text-sm font-medium">
                 {t('photoPrompt')}
               </label>
-              <InspireButton
-                onClick={handleInspire}
-                disabled={
-                  isInspiring ||
-                  !selectedEnvironmentId ||
-                  selectedCharacterIds.size === 0
-                }
-                isLoading={isInspiring}
-              />
+              <div className="flex items-center space-x-2">
+                <div>
+                  <Select
+                    value={selectedStyle}
+                    onValueChange={(value) =>
+                      setSelectedStyle(value as PhotoshootStyle)
+                    }
+                  >
+                    <SelectTrigger id="style-select" className="h-8 text-xs">
+                      <SelectValue placeholder="Select style" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {getStyles().map((style) => (
+                        <SelectItem
+                          key={style}
+                          value={style}
+                          className="text-xs"
+                        >
+                          {t(`styles.${style}`)}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <InspireButton
+                  onClick={handleInspire}
+                  disabled={isInspiring || selectedCharacterIds.size === 0}
+                  isLoading={isInspiring}
+                />
+              </div>
             </div>
             <Textarea
               id="story-prompt"
@@ -621,12 +670,7 @@ export function PhotoshootStudio() {
         {/* Action Button */}
         <Button
           onClick={() => handleGenerate()}
-          disabled={
-            isGenerating ||
-            !selectedEnvironmentId ||
-            selectedCharacterIds.size === 0 ||
-            !prompt
-          }
+          disabled={isGenerating || selectedCharacterIds.size === 0 || !prompt}
         >
           {isGenerating ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />

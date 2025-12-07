@@ -80,7 +80,22 @@
     "imagePlaceholderDescription": "选择人物和场景，然后点击“开始拍摄”",
     "generateButton": "开始拍摄",
     "inspiringButton": "给我灵感！",
-    "inspiringButtonLoading": "灵感迸发中..."
+    "inspiringButtonLoading": "灵感迸发中...",
+    "style": "摄影风格",
+    "styles": {
+      "candid_street": "街头纪实",
+      "cinematic": "电影质感",
+      "high_fashion": "时尚大片",
+      "japanese_soft": "日系清新",
+      "cyberpunk": "赛博朋克",
+      "vintage_film": "复古胶片",
+      "bw_art": "黑白艺术",
+      "selfie": "手持自拍",
+      "minimalist": "极简主义",
+      "professional_headshot": "专业肖像",
+      "cctv": "监控视角",
+      "mirror_selfie": "镜中自拍"
+    }
   },
   "CharacterCreator": {
     "title": "人物创建器",

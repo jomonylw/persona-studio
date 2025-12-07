@@ -141,7 +141,7 @@ export interface IPhoto {
   id: string
   prompt: string // The user's prompt for the action/story in the photo
   characterIds: string[] // IDs of characters used in the photo
-  environmentId: string // ID of the environment used
+  environmentId?: string // ID of the environment used
   imageUrl?: string // The final generated image URL
   history?: IImageHistory[]
   selectedHistoryId?: string

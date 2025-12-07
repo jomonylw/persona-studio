@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { genAI, GEMINI_IMAGE_MODEL_NAME } from '@/lib/gemini'
 import { getPrompts, Locale } from '@/lib/prompts'
+import { PhotoshootStyle } from '@/lib/prompts/photoshoot'
 import { ICharacterAsset, IEnvironmentAsset } from '@/types'
 import { Part } from '@google/genai'
 import sharp from 'sharp'
@@ -31,17 +32,21 @@ export async function POST(req: Request) {
       locale = 'en',
       model,
       aspectRatio,
+      style = 'candid_street',
+      userIdea,
     }: {
       characters: ICharacterAsset[]
-      environment: IEnvironmentAsset
+      environment?: IEnvironmentAsset
       locale?: Locale
       model?: string
       aspectRatio: string
+      style?: PhotoshootStyle
+      userIdea?: string
     } = await req.json()
 
-    if (!characters || !environment) {
+    if (!characters) {
       return NextResponse.json(
-        { error: 'Characters and environment are required.' },
+        { error: 'Characters are required.' },
         { status: 400 },
       )
     }
@@ -57,7 +62,7 @@ export async function POST(req: Request) {
         )
       }
     }
-    if (environment.imageUrl) {
+    if (environment && environment.imageUrl) {
       compressionPromises.push(
         compressImage(environment.imageUrl).then((compressed) => {
           environment.imageUrl = compressed
@@ -67,7 +72,13 @@ export async function POST(req: Request) {
     await Promise.all(compressionPromises)
 
     const prompts = getPrompts(locale)
-    const prompt = prompts.photoshoot(characters, environment, aspectRatio)
+    const prompt = prompts.photoshoot(
+      characters,
+      environment,
+      aspectRatio,
+      style,
+      userIdea,
+    )
 
     const contents: Part[] = [{ text: prompt }]
 
@@ -86,7 +97,7 @@ export async function POST(req: Request) {
     }
 
     // Add environment image
-    if (environment.imageUrl) {
+    if (environment && environment.imageUrl) {
       contents.push({ text: `Reference for environment: ${environment.name}` })
       // After compression, the image is just the base64 data
       contents.push({

@@ -80,7 +80,22 @@
     "imagePlaceholderDescription": "Select characters and environments, then click 'Start Shooting'",
     "generateButton": "Start Shooting",
     "inspiringButton": "Inspire Me!",
-    "inspiringButtonLoading": "Inspiration striking..."
+    "inspiringButtonLoading": "Inspiration striking...",
+    "style": "Photography Style",
+    "styles": {
+      "candid_street": "Candid Street",
+      "cinematic": "Cinematic",
+      "high_fashion": "High Fashion",
+      "japanese_soft": "Japanese Soft",
+      "cyberpunk": "Cyberpunk",
+      "vintage_film": "Vintage Film",
+      "bw_art": "B&W Art",
+      "selfie": "Handheld Selfie",
+      "minimalist": "Minimalist",
+      "professional_headshot": "Professional Headshot",
+      "cctv": "CCTV",
+      "mirror_selfie": "Mirror Selfie"
+    }
   },
   "CharacterCreator": {
     "title": "Character Creator",
