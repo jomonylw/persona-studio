@@ -5,6 +5,8 @@ import { photoPromptTranslator } from './prompts/photo-prompt-translator'
 import { photoshootPrompt } from './prompts/photoshoot'
 import { characterCardPrompt } from './prompts/character-card'
 import { environmentPrompt } from './prompts/environment'
+import { environmentTextPrompt } from './prompts/environment-text'
+import { characterPrompt } from './prompts/character'
 
 export type Locale = (typeof locales)[number]
 
@@ -17,6 +19,8 @@ const getEnPrompts = (options?: { constraints?: string }) => ({
   photoshoot: photoshootPrompt.en,
   characterCard: characterCardPrompt.en,
   environment: environmentPrompt.en,
+  environmentText: environmentTextPrompt.en,
+  character: characterPrompt.en,
 })
 
 // A structured object for Chinese prompts
@@ -28,6 +32,8 @@ const getZhPrompts = (options?: { constraints?: string }) => ({
   photoshoot: photoshootPrompt.zh,
   characterCard: characterCardPrompt.zh,
   environment: environmentPrompt.zh,
+  environmentText: environmentTextPrompt.zh,
+  character: characterPrompt.zh,
 })
 
 /**

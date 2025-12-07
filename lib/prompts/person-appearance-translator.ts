@@ -151,11 +151,14 @@ export const personAppearancePromptTranslator = {
 
     // Combine all parts into a single, coherent prompt.
     const finalPrompt = [
-      'Bust shot portrait, street style fashion,',
+      'A high-quality, detailed portrait of',
       parts.join(' '),
-      ', soft natural lighting, shallow depth of field,',
-      'clean and sharp focus, high detail,',
-      'shot on Leica SL2 with Noctilux-M 50mm f/0.95 lens, 8k.',
+      'Style:',
+      pa.clothing_and_accessories.style_vibe,
+      'photorealistic, hyperrealistic, cinematic lighting,',
+      'detailed skin texture, pores,',
+      'soft natural lighting, shallow depth of field,',
+      'clean and sharp focus, extremely high detail, 8k.',
     ].join(' ')
 
     return finalPrompt
@@ -299,11 +302,14 @@ export const personAppearancePromptTranslator = {
     // Combine all parts into a single, coherent prompt.
     // Combine all parts into a single, coherent prompt.
     const finalPrompt = [
-      '半身人像特写, 时尚街拍风格,',
+      '一张高质量、细节丰富的半身人像特写, 主体是',
       parts.join(' '),
-      ', 柔和的自然光线, 浅景深,',
-      '焦点清晰锐利, 极高细节,',
-      '使用徕卡SL2相机和Noctilux-M 50mm f/0.95镜头拍摄, 8K分辨率。',
+      '风格:',
+      pa.clothing_and_accessories.style_vibe,
+      '照片级真实感, 超级写实, 电影感光效,',
+      '细腻的皮肤纹理, 真实的毛孔,',
+      '柔和的自然光线, 浅景深,',
+      '焦点清晰锐利, 极高细节, 8K分辨率。',
     ].join(' ')
     return finalPrompt
   },

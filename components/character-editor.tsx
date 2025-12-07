@@ -20,7 +20,7 @@ import {
   IntlMessages,
   IImageHistory,
 } from '@/types'
-import { Loader2, Sparkles, ChevronsUpDown } from 'lucide-react'
+import { Loader2, Sparkles, ChevronsUpDown, Wand2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateUUID } from '@/lib/utils'
 import { ImageUploader } from './image-uploader'
@@ -57,6 +57,7 @@ export function CharacterEditor({
 
   const [userIdea, setUserIdea] = useState('')
   const [isInspiring, setIsInspiring] = useState(false)
+  const [isExpanding, setIsExpanding] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
   const [referenceImage, setReferenceImage] = useState<string | null>(null)
 
@@ -104,6 +105,33 @@ export function CharacterEditor({
       )
     } finally {
       setIsInspiring(false)
+    }
+  }
+
+  const handleExpandIdea = async () => {
+    setIsExpanding(true)
+    toast.info(t('infoExpandingIdea'))
+    try {
+      const response = await fetch('/api/inspire/character', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          userIdea,
+          model: textModel,
+          locale,
+        }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.details || 'Failed to expand idea.')
+      }
+      const { text } = await response.json()
+      setUserIdea(text)
+      toast.success(t('successIdeaExpanded'))
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : t('errorIdeaFailed'))
+    } finally {
+      setIsExpanding(false)
     }
   }
 
@@ -348,13 +376,27 @@ export function CharacterEditor({
 
         {/* 2. User Idea Textarea (Middle) */}
         <div className="space-y-2">
-          <Label htmlFor="user-idea">{t('ideaLabel')}</Label>
+          <div className="flex justify-between items-center">
+            <Label htmlFor="user-idea">{t('ideaLabel')}</Label>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleExpandIdea}
+              disabled={isExpanding || isInspiring}
+            >
+              {isExpanding ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Wand2 className="h-4 w-4" />
+              )}
+            </Button>
+          </div>
           <Textarea
             id="user-idea"
             placeholder={t('ideaPlaceholder')}
             value={userIdea}
             onChange={(e) => setUserIdea(e.target.value)}
-            disabled={isInspiring}
+            disabled={isInspiring || isExpanding}
             className="min-h-[120px] text-base"
           />
         </div>

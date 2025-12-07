@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
@@ -57,8 +57,16 @@ export function PhotoshootStudio() {
   const [isGenerating, setIsGenerating] = useState(false)
   const [isFinetuneModalOpen, setIsFinetuneModalOpen] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const isInternalUpdate = useRef(false)
 
   useEffect(() => {
+    // If the update was triggered internally (by generating a photo),
+    // we don't want to sync the state from the photos array.
+    if (isInternalUpdate.current) {
+      isInternalUpdate.current = false
+      return
+    }
+
     // When a project is imported, sync the state of the photoshoot studio
     // with the latest photo available in the project.
     if (photos && photos.length > 0) {
@@ -273,6 +281,7 @@ export function PhotoshootStudio() {
           history: [...(activePhoto.history || []), newHistoryEntry],
           selectedHistoryId: newHistoryEntry.id,
         }
+        isInternalUpdate.current = true
         updatePhoto(updatedPhoto)
       } else {
         // This is a new photo
@@ -285,6 +294,7 @@ export function PhotoshootStudio() {
           history: [newHistoryEntry],
           selectedHistoryId: newHistoryEntry.id,
         }
+        isInternalUpdate.current = true
         addPhoto(newPhoto)
         setActivePhotoId(newPhoto.id)
       }
@@ -331,6 +341,7 @@ export function PhotoshootStudio() {
     e.stopPropagation()
     if (isDeleting) {
       if (activePhotoId) {
+        isInternalUpdate.current = true
         deletePhoto(activePhotoId)
         setActivePhotoId(null)
       }
@@ -346,6 +357,7 @@ export function PhotoshootStudio() {
       (h) => h.id === historyId,
     )
     if (selectedHistoryItem) {
+      isInternalUpdate.current = true
       updatePhoto({
         ...activePhoto,
         imageUrl: selectedHistoryItem.imageUrl,
@@ -361,6 +373,7 @@ export function PhotoshootStudio() {
 
     if (newHistory.length === 0) {
       // If no history is left, delete the entire photo object
+      isInternalUpdate.current = true
       deletePhoto(activePhoto.id)
       setActivePhotoId(null)
     } else {
@@ -372,6 +385,7 @@ export function PhotoshootStudio() {
           ? newHistory[newHistory.length - 1].imageUrl
           : activePhoto.imageUrl
 
+      isInternalUpdate.current = true
       updatePhoto({
         ...activePhoto,
         history: newHistory,

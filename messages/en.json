@@ -168,7 +168,10 @@
     "errorDescriptorRequired": "Please generate a character profile first.",
     "infoGeneratingPortrait": "Generating character portrait...",
     "successPortraitGenerated": "Character portrait generated successfully!",
-    "errorPortraitFailed": "Failed to generate character portrait."
+    "errorPortraitFailed": "Failed to generate character portrait.",
+    "infoExpandingIdea": "Getting new ideas...",
+    "successIdeaExpanded": "New idea generated!",
+    "errorIdeaFailed": "Failed to get new ideas."
   },
   "EnvironmentCreator": {
     "title": "Environment Creator",
@@ -194,6 +197,9 @@
     "errorNameRequired": "Please enter a name for the environment.",
     "infoGeneratingImage": "Generating environment image...",
     "successImageGenerated": "Environment image generated successfully!",
-    "errorImageFailed": "Failed to generate environment image."
+    "errorImageFailed": "Failed to generate environment image.",
+    "infoInspiring": "Inspiring new ideas...",
+    "successInspiring": "New idea inspired successfully!",
+    "errorInspiringFailed": "Failed to inspire new ideas."
   }
 }

@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { IEnvironmentAsset, IImageHistory } from '@/types'
-import { Loader2, Sparkles } from 'lucide-react'
+import { Loader2, Sparkles, Wand2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateUUID } from '@/lib/utils'
 import { ImageUploader } from './image-uploader'
@@ -26,6 +26,7 @@ export function EnvironmentEditor({
   const t = useTranslations('EnvironmentEditor')
   const locale = useLocale()
   const {
+    textModel,
     imageModel,
     updateEnvironment,
     addEnvironment,
@@ -36,6 +37,7 @@ export function EnvironmentEditor({
   const [name, setName] = useState(existingAsset?.name || '')
   const [prompt, setPrompt] = useState(existingAsset?.prompt || '')
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isInspiring, setIsInspiring] = useState(false)
   const [referenceImage, setReferenceImage] = useState<string | null>(
     existingAsset?.referenceImage || null,
   )
@@ -49,6 +51,52 @@ export function EnvironmentEditor({
     setImageUrl(existingAsset?.imageUrl)
     setReferenceImage(existingAsset?.referenceImage || null)
   }, [existingAsset])
+
+  const handleInspire = async () => {
+    if (!textModel) {
+      toast.error(t('errorTextModelRequired'))
+      return
+    }
+    setIsInspiring(true)
+    toast.info(t('infoInspiring'))
+    try {
+      const body: {
+        userIdea?: string
+        image?: string | null
+        model: string
+        locale: string
+      } = {
+        image: referenceImage,
+        model: textModel,
+        locale,
+      }
+
+      if (prompt.trim()) {
+        body.userIdea = prompt
+      }
+
+      const response = await fetch('/api/inspire/environment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.details || 'Failed to get suggestion.')
+      }
+      const environmentData = await response.json()
+      // Populate both name and prompt fields from the JSON response
+      setName(environmentData.name || '')
+      setPrompt(environmentData.prompt || '')
+      toast.success(t('successInspiring'))
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t('errorInspiringFailed'),
+      )
+    } finally {
+      setIsInspiring(false)
+    }
+  }
 
   const handleGenerate = async () => {
     if (!prompt.trim()) {
@@ -159,13 +207,27 @@ export function EnvironmentEditor({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="environment-prompt">{t('promptLabel')}</Label>
+        <div className="flex justify-between items-center">
+          <Label htmlFor="environment-prompt">{t('promptLabel')}</Label>
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleInspire}
+            disabled={isInspiring || isGenerating}
+          >
+            {isInspiring ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Wand2 className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
         <Textarea
           id="environment-prompt"
           placeholder={t('promptPlaceholder')}
           value={prompt}
           onChange={(e) => setPrompt(e.target.value)}
-          disabled={isGenerating}
+          disabled={isGenerating || isInspiring}
           className="min-h-[120px] text-base"
         />
       </div>
