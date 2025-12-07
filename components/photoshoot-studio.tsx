@@ -73,7 +73,16 @@ export function PhotoshootStudio() {
       const lastPhoto = photos[photos.length - 1]
       if (lastPhoto) {
         setActivePhotoId(lastPhoto.id)
-        setPrompt(lastPhoto.prompt)
+        let promptToShow = lastPhoto.prompt
+        if (lastPhoto.history && lastPhoto.selectedHistoryId) {
+          const selectedHistory = lastPhoto.history.find(
+            (h) => h.id === lastPhoto.selectedHistoryId,
+          )
+          if (selectedHistory) {
+            promptToShow = selectedHistory.prompt
+          }
+        }
+        setPrompt(promptToShow)
         setSelectedCharacterIds(new Set(lastPhoto.characterIds))
         setSelectedEnvironmentId(lastPhoto.environmentId)
       }
@@ -273,6 +282,10 @@ export function PhotoshootStudio() {
         createdAt: new Date().toISOString(),
       }
 
+      if (finetunePrompt) {
+        setPrompt(finetunePrompt)
+      }
+
       if (activePhoto) {
         // This is a finetune, update the existing photo
         const updatedPhoto: IPhoto = {
@@ -358,6 +371,7 @@ export function PhotoshootStudio() {
     )
     if (selectedHistoryItem) {
       isInternalUpdate.current = true
+      setPrompt(selectedHistoryItem.prompt)
       updatePhoto({
         ...activePhoto,
         imageUrl: selectedHistoryItem.imageUrl,
@@ -379,11 +393,23 @@ export function PhotoshootStudio() {
     } else {
       // If the deleted image was the one being displayed,
       // switch to the latest available image in the history.
-      const newImageUrl =
+      const isDeletingCurrent =
         activePhoto.imageUrl ===
         activePhoto.history.find((h) => h.id === historyId)?.imageUrl
-          ? newHistory[newHistory.length - 1].imageUrl
-          : activePhoto.imageUrl
+
+      const newImageUrl = isDeletingCurrent
+        ? newHistory[newHistory.length - 1].imageUrl
+        : activePhoto.imageUrl
+
+      const newHistoryItem = isDeletingCurrent
+        ? newHistory[newHistory.length - 1]
+        : activePhoto.history.find(
+            (h) => h.id === (activePhoto.selectedHistoryId || ''),
+          )
+
+      if (isDeletingCurrent && newHistoryItem) {
+        setPrompt(newHistoryItem.prompt)
+      }
 
       isInternalUpdate.current = true
       updatePhoto({
