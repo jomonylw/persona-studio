@@ -11,6 +11,7 @@ export type PhotoshootStyle =
   | 'professional_headshot'
   | 'cctv'
   | 'mirror_selfie'
+  | 'portrait_closeup'
 
 export interface StyleConfig {
   role: {

@@ -153,12 +153,13 @@ export const personAppearancePromptTranslator = {
     const finalPrompt = [
       'A high-quality, detailed portrait of',
       parts.join(' '),
+      'in a realistic, everyday life scene,',
       'Style:',
       pa.clothing_and_accessories.style_vibe,
-      'photorealistic, hyperrealistic, cinematic lighting,',
       'detailed skin texture, pores,',
       'soft natural lighting, shallow depth of field,',
       'clean and sharp focus, extremely high detail, 8k.',
+      'shot on a Leica M6 with a 50mm f/1.4 lens,',
     ].join(' ')
 
     return finalPrompt
@@ -302,14 +303,14 @@ export const personAppearancePromptTranslator = {
     // Combine all parts into a single, coherent prompt.
     // Combine all parts into a single, coherent prompt.
     const finalPrompt = [
-      '一张高质量、细节丰富的半身人像特写, 主体是',
+      '一张高质量、细节丰富的半身人像特写, 在真实的生活场景中, 主体是',
       parts.join(' '),
       '风格:',
       pa.clothing_and_accessories.style_vibe,
-      '照片级真实感, 超级写实, 电影感光效,',
       '细腻的皮肤纹理, 真实的毛孔,',
       '柔和的自然光线, 浅景深,',
-      '焦点清晰锐利, 极高细节, 8K分辨率。',
+      '焦点清晰锐利, 极高细节, 8K分辨率,',
+      '使用 Leica M6 相机和 50mm f/1.4 镜头拍摄,',
     ].join(' ')
     return finalPrompt
   },

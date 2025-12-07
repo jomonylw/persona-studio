@@ -30,8 +30,8 @@ export const mirrorSelfie: StyleConfig = {
     },
   },
   composition: {
-    en: "View from the mirror's perspective, often slightly high-angled. The composition is centered on the subject's reflection. The smartphone's rear camera is visible in the reflection. Natural smartphone depth of field, with a deep focus; the background is clear and not artificially blurred.",
-    zh: '从镜子的视角拍摄，通常是轻微的俯拍角度。构图以主体在镜中的影像为中心。智能手机的后置摄像头在倒影中可见。景深为手机自然景深，焦点深；背景清晰可辨，无人为模糊效果。',
+    en: "View from the mirror's perspective, often slightly high-angled. The composition is centered on the subject's reflection, with the mirror frame visible and not filling the entire screen. The smartphone's rear camera is visible in the reflection. Natural smartphone depth of field, with a deep focus; the background is clear and not artificially blurred.",
+    zh: '从镜子的视角拍摄，通常是轻微的俯拍角度。构图以主体在镜中的影像为中心，镜子的边框可见，并未占满全部画面。智能手机的后置摄像头在倒影中可见。景深为手机自然景深，焦点深；背景清晰可辨，无人为模糊效果。',
   },
   lighting: {
     en: 'Soft, diffused daylight from a large window with sheer curtains to one side of the lens. White balance is neutral (around 5200K).',
@@ -40,12 +40,12 @@ export const mirrorSelfie: StyleConfig = {
   coreStyle: {
     style: { en: 'Realistic Mirror Selfie', zh: '写实镜中自拍' },
     camera: {
-      en: 'Smartphone rear camera pointed at mirror, 26mm equivalent focal length, f/1.8, ISO 100',
-      zh: '智能手机后置摄像头对镜拍摄，26mm 等效焦距，f/1.8，ISO 100',
+      en: 'Apple smartphone rear camera pointed at mirror, 26mm equivalent focal length, f/1.8, ISO 100, capturing with a computational photography texture, realistic colors, wide dynamic range, and sharp details.',
+      zh: '苹果智能手机后置摄像头对镜拍摄，26mm 等效焦距，f/1.8，ISO 100，照片呈现出计算摄影质感，色彩真实，动态范围广，细节清晰。',
     },
     texture: {
-      en: 'Natural skin texture without beauty filters or airbrushing, sharp focus on the reflection, deep depth of field',
-      zh: '无美颜滤镜或磨皮的自然皮肤纹理，焦点清晰地落在镜中影像上，景深大',
+      en: 'Natural skin texture without beauty filters or airbrushing, sharp focus on the reflection, deep depth of field. Subtle, realistic details like faint water spots or dust on the mirror surface.',
+      zh: '无美颜滤镜或磨皮的自然皮肤纹理，焦点清晰地落在镜中影像上，景深大。镜面有轻微的水渍或灰尘等真实感细节。',
     },
     output: {
       en: 'Authentic Slice-of-Life, Unposed, High-Quality Mirror Selfie',

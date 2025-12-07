@@ -1,7 +1,7 @@
 {
   "Index": {
     "title": "Persona Studio",
-    "subtitle": "借助 AI 的力量，让您的漫画故事栩栩如生。",
+    "subtitle": "借助 AI 的力量，让您的照片栩栩如生。",
     "importProject": "导入项目",
     "exportProject": "导出项目",
     "resetProject": "重置项目",
@@ -94,7 +94,8 @@
       "minimalist": "极简主义",
       "professional_headshot": "专业肖像",
       "cctv": "监控视角",
-      "mirror_selfie": "镜中自拍"
+      "mirror_selfie": "镜中自拍",
+      "portrait_closeup": "写真特写"
     }
   },
   "CharacterCreator": {

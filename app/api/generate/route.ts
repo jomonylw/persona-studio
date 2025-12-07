@@ -268,6 +268,11 @@ export async function POST(req: Request) {
       return part
     })
 
+    console.log(
+      'Final prompt parts:',
+      JSON.stringify(sanitizedPromptParts, null, 2),
+    )
+
     const result = await genAI.models.generateContent({
       model: model || GEMINI_IMAGE_MODEL_NAME,
       contents: promptParts,

@@ -1,7 +1,7 @@
 {
   "Index": {
     "title": "Persona Studio",
-    "subtitle": "Bring your manga stories to life with the power of AI.",
+    "subtitle": "Bring your photos to life with the power of AI.",
     "importProject": "Import Project",
     "exportProject": "Export Project",
     "resetProject": "Reset Project",
@@ -94,7 +94,8 @@
       "minimalist": "Minimalist",
       "professional_headshot": "Professional Headshot",
       "cctv": "CCTV",
-      "mirror_selfie": "Mirror Selfie"
+      "mirror_selfie": "Mirror Selfie",
+      "portrait_closeup": "Portrait Closeup"
     }
   },
   "CharacterCreator": {

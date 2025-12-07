@@ -339,9 +339,6 @@ export function PhotoshootStudio() {
       console.error('Failed to generate photo:', error)
     } finally {
       setIsGenerating(false)
-      if (finetunePrompt) {
-        setIsFinetuneModalOpen(false)
-      }
     }
   }
 
