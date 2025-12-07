@@ -12,6 +12,7 @@ export type PhotoshootStyle =
   | 'cctv'
   | 'mirror_selfie'
   | 'portrait_closeup'
+  | 'fuji_instax'
 
 export interface StyleConfig {
   role: {
