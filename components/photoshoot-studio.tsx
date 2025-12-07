@@ -44,6 +44,7 @@ import {
   getStyles,
   PhotoshootStyle,
 } from '@/lib/prompts/photoshoot'
+import { urlToPureBase64 } from '@/lib/utils'
 
 export function PhotoshootStudio() {
   const t = useTranslations('PhotoshootStudio')
@@ -76,15 +77,10 @@ export function PhotoshootStudio() {
   const isInternalUpdate = useRef(false)
 
   useEffect(() => {
-    // If the update was triggered internally (by generating a photo),
-    // we don't want to sync the state from the photos array.
     if (isInternalUpdate.current) {
       isInternalUpdate.current = false
       return
     }
-
-    // When a project is imported, sync the state of the photoshoot studio
-    // with the latest photo available in the project.
     if (photos && photos.length > 0) {
       const lastPhoto = photos[photos.length - 1]
       if (lastPhoto) {
@@ -103,14 +99,11 @@ export function PhotoshootStudio() {
         setSelectedEnvironmentId(lastPhoto.environmentId || null)
       }
     } else {
-      // If there are no photos, reset the studio state
       setActivePhotoId(null)
       setPrompt('')
       setSelectedCharacterIds(new Set())
       setSelectedEnvironmentId(null)
     }
-    // We only want to run this effect when the photos array is replaced,
-    // such as on project import. Not on every photo addition/deletion.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [photos])
 
@@ -125,28 +118,8 @@ export function PhotoshootStudio() {
       )
 
       if (selectedCharacters.length === 0) {
-        // TODO: Show a toast notification
         console.error('Please select characters first.')
         return
-      }
-
-      const urlToPureBase64 = async (
-        url: string | undefined,
-      ): Promise<string | undefined> => {
-        if (!url) return undefined
-        if (url.startsWith('data:')) {
-          return url.split(',')[1]
-        }
-        // For blob URLs or other URLs, fetch and convert
-        const response = await fetch(url)
-        const blob = await response.blob()
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onloadend = () => resolve(reader.result as string)
-          reader.onerror = reject
-          reader.readAsDataURL(blob)
-        })
-        return dataUrl.split(',')[1]
       }
 
       const charactersWithBase64 = await Promise.all(
@@ -184,7 +157,6 @@ export function PhotoshootStudio() {
       setPrompt(result.prompt)
     } catch (error) {
       console.error('Failed to get prompt:', error)
-      // TODO: Show an error toast
     } finally {
       setIsInspiring(false)
     }
@@ -202,7 +174,12 @@ export function PhotoshootStudio() {
     })
   }
 
-  const handleGenerate = async (finetunePrompt?: string) => {
+  const handleGenerate = async (options?: {
+    finetunePrompt?: string
+    referenceImage?: string | null
+    baseImage?: IImageHistory | null
+  }) => {
+    const { finetunePrompt, referenceImage, baseImage } = options || {}
     setIsGenerating(true)
     try {
       const selectedEnvironment = environments.find(
@@ -217,52 +194,42 @@ export function PhotoshootStudio() {
         return
       }
 
-      const urlToPureBase64 = async (
-        url: string | undefined,
-      ): Promise<string | undefined> => {
-        if (!url) return undefined
-        if (url.startsWith('data:')) {
-          return url.split(',')[1]
-        }
-        const response = await fetch(url)
-        const blob = await response.blob()
-        const dataUrl = await new Promise<string>((resolve, reject) => {
-          const reader = new FileReader()
-          reader.onloadend = () => resolve(reader.result as string)
-          reader.onerror = reject
-          reader.readAsDataURL(blob)
-        })
-        return dataUrl.split(',')[1]
+      let referenceAssets: any[] = []
+      if (!finetunePrompt) {
+        const allAssets = selectedEnvironment
+          ? [...selectedCharacters, selectedEnvironment]
+          : [...selectedCharacters]
+        const referenceAssetPromises = allAssets
+          .filter((asset) => asset.imageUrl)
+          .map(async (asset) => {
+            const base64 = await urlToPureBase64(asset.imageUrl)
+            if (!base64) return null
+            return {
+              name: asset.name,
+              image: base64,
+              type: asset.type,
+            }
+          })
+        referenceAssets = (await Promise.all(referenceAssetPromises)).filter(
+          (asset) => asset !== null,
+        )
       }
-
-      const allAssets = selectedEnvironment
-        ? [...selectedCharacters, selectedEnvironment]
-        : [...selectedCharacters]
-      const referenceAssetPromises = allAssets
-        .filter((asset) => asset.imageUrl)
-        .map(async (asset) => {
-          const base64 = await urlToPureBase64(asset.imageUrl)
-          if (!base64) return null
-          return {
-            name: asset.name,
-            image: base64,
-            type: asset.type,
-          }
-        })
-      const referenceAssets = (
-        await Promise.all(referenceAssetPromises)
-      ).filter((asset) => asset !== null)
 
       const activePhoto = photos.find((p) => p.id === activePhotoId)
 
       const finetuneImageBase64 = finetunePrompt
-        ? await urlToPureBase64(activePhoto?.imageUrl)
+        ? await urlToPureBase64(baseImage?.imageUrl)
+        : undefined
+
+      const referenceImageBase64 = referenceImage
+        ? await urlToPureBase64(referenceImage)
         : undefined
 
       const requestBody = {
         characterIds: Array.from(selectedCharacterIds),
         environmentId: selectedEnvironmentId || '',
         photoPrompt: finetunePrompt || prompt,
+        isFinetune: !!finetunePrompt,
         characters: selectedCharacters.map(
           ({ id, name, descriptor, type }) => ({
             id,
@@ -281,6 +248,7 @@ export function PhotoshootStudio() {
           : undefined,
         referenceAssets,
         finetuneImage: finetuneImageBase64,
+        referenceImage: referenceImageBase64,
         locale,
         artStyle: getArtStyleDescription(selectedStyle, locale),
         aspectRatio: aspectRatio,
@@ -311,7 +279,6 @@ export function PhotoshootStudio() {
       }
 
       if (activePhoto) {
-        // This is a finetune, update the existing photo
         const updatedPhoto: IPhoto = {
           ...activePhoto,
           imageUrl: result.imageUrl,
@@ -321,7 +288,6 @@ export function PhotoshootStudio() {
         isInternalUpdate.current = true
         updatePhoto(updatedPhoto)
       } else {
-        // This is a new photo
         const newPhoto: IPhoto = {
           id: `photo-${Date.now()}`,
           prompt: prompt,
@@ -347,7 +313,11 @@ export function PhotoshootStudio() {
     prompt: string,
     referenceImage: string | null,
   ) => {
-    await handleGenerate(prompt)
+    await handleGenerate({
+      finetunePrompt: prompt,
+      referenceImage,
+      baseImage,
+    })
   }
 
   const activePhoto = photos.find((p) => p.id === activePhotoId)
@@ -407,13 +377,10 @@ export function PhotoshootStudio() {
     const newHistory = activePhoto.history.filter((h) => h.id !== historyId)
 
     if (newHistory.length === 0) {
-      // If no history is left, delete the entire photo object
       isInternalUpdate.current = true
       deletePhoto(activePhoto.id)
       setActivePhotoId(null)
     } else {
-      // If the deleted image was the one being displayed,
-      // switch to the latest available image in the history.
       const isDeletingCurrent =
         activePhoto.imageUrl ===
         activePhoto.history.find((h) => h.id === historyId)?.imageUrl

@@ -40,6 +40,7 @@ interface GenerationRequest {
   environment?: IEnvironmentAsset
   artStyle?: string
   environmentPrompt?: string
+  isFinetune?: boolean
 }
 
 interface ImageConfig {
@@ -97,6 +98,7 @@ export async function POST(req: Request) {
       environment,
       artStyle,
       environmentPrompt,
+      isFinetune,
     } = body
     let { finetuneImage, referenceImage } = body
     const { referenceAssets } = body
@@ -105,7 +107,10 @@ export async function POST(req: Request) {
     let prompt = initialPrompt
 
     // This is a photo generation request
-    if (photoPrompt && characters) {
+    if (isFinetune && photoPrompt) {
+      const prompts = getPrompts(locale)
+      prompt = prompts.finetune(photoPrompt)
+    } else if (photoPrompt && characters) {
       const resolvedArtStyle =
         artStyle ||
         (locale === 'zh' ? '电影感, 超写实' : 'cinematic, hyperrealistic')
