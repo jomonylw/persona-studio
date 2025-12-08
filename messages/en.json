@@ -183,12 +183,17 @@
     "errorIdeaRequired": "Please enter a character concept or upload a reference image.",
     "errorDescriptorFailed": "Failed to generate character profile.",
     "errorDescriptorRequired": "Please generate a character profile first.",
+    "errorNameRequired": "Please enter a name for the character in the profile.",
     "infoGeneratingPortrait": "Generating character portrait...",
     "successPortraitGenerated": "Character portrait generated successfully!",
     "errorPortraitFailed": "Failed to generate character portrait.",
     "infoExpandingIdea": "Getting new ideas...",
     "successIdeaExpanded": "New idea generated!",
-    "errorIdeaFailed": "Failed to get new ideas."
+    "errorIdeaFailed": "Failed to get new ideas.",
+    "deleteButton": "Delete Character",
+    "confirmDeleteButton": "Confirm Delete",
+    "warningConfirmDelete": "Click again to confirm deletion.",
+    "successCharacterDeleted": "Character deleted successfully!"
   },
   "EnvironmentCreator": {
     "title": "Environment Creator",
@@ -217,6 +222,10 @@
     "errorImageFailed": "Failed to generate environment image.",
     "infoInspiring": "Inspiring new ideas...",
     "successInspiring": "New idea inspired successfully!",
-    "errorInspiringFailed": "Failed to inspire new ideas."
+    "errorInspiringFailed": "Failed to inspire new ideas.",
+    "deleteButton": "Delete Environment",
+    "confirmDeleteButton": "Confirm Delete",
+    "warningConfirmDelete": "Click again to confirm deletion.",
+    "successEnvironmentDeleted": "Environment deleted successfully!"
   }
 }

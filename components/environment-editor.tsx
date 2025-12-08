@@ -8,7 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { IEnvironmentAsset, IImageHistory } from '@/types'
-import { Loader2, Sparkles, Wand2 } from 'lucide-react'
+import { Loader2, Sparkles, Wand2, Trash2, Check } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateUUID } from '@/lib/utils'
 import { ImageUploader } from './image-uploader'
@@ -17,11 +17,13 @@ import { ImageFinetuneModal } from './image-finetune-modal'
 
 interface EnvironmentEditorProps {
   onAssetCreated: (asset: IEnvironmentAsset) => void
+  onAssetDeleted: (assetId: string) => void
   existingAsset?: IEnvironmentAsset | null
 }
 
 export function EnvironmentEditor({
   onAssetCreated,
+  onAssetDeleted,
   existingAsset,
 }: EnvironmentEditorProps) {
   const t = useTranslations('EnvironmentEditor')
@@ -39,6 +41,7 @@ export function EnvironmentEditor({
   const [prompt, setPrompt] = useState(existingAsset?.prompt || '')
   const [isGenerating, setIsGenerating] = useState(false)
   const [isInspiring, setIsInspiring] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [referenceImage, setReferenceImage] = useState<string | null>(
     existingAsset?.referenceImage || null,
   )
@@ -215,6 +218,7 @@ export function EnvironmentEditor({
           finetunePrompt: prompt,
           finetuneImage: baseImage.imageUrl,
           referenceImage: referenceImage,
+          promptTask: 'finetune',
         }),
       })
       if (!response.ok) {
@@ -244,6 +248,18 @@ export function EnvironmentEditor({
       )
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleConfirmDelete = () => {
+    if (!existingAsset) return
+
+    if (isDeleting) {
+      onAssetDeleted(existingAsset.id)
+      toast.success(t('successEnvironmentDeleted'))
+    } else {
+      setIsDeleting(true)
+      toast.warning(t('warningConfirmDelete'))
     }
   }
 
@@ -320,6 +336,24 @@ export function EnvironmentEditor({
           </CardContent>
         </Card>
       )}
+
+      {existingAsset && existingAsset.id && (
+        <div onMouseLeave={() => setIsDeleting(false)}>
+          <Button
+            variant="destructive"
+            className="w-full"
+            onClick={handleConfirmDelete}
+          >
+            {isDeleting ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : (
+              <Trash2 className="mr-2 h-4 w-4" />
+            )}
+            {isDeleting ? t('confirmDeleteButton') : t('deleteButton')}
+          </Button>
+        </div>
+      )}
+
       {currentAsset && isFinetuneModalOpen && (
         <ImageFinetuneModal
           isOpen={isFinetuneModalOpen}

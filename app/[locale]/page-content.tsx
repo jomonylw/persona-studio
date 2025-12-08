@@ -129,8 +129,16 @@ export default function ProjectPage() {
   }
 
   const handleDeleteAsset = (assetId: string) => {
-    deleteCharacter(assetId)
-    deleteEnvironment(assetId)
+    // Determine the type of asset being deleted to correctly update the state
+    const isCharacter = characters.some((c) => c.id === assetId)
+    if (isCharacter) {
+      deleteCharacter(assetId)
+    } else {
+      deleteEnvironment(assetId)
+    }
+    // After deletion, reset the view to the asset lists
+    setSelectedAsset(null)
+    setLeftColumnView('asset-lists')
   }
 
   const handleUpdateAsset = (asset: IAsset) => {
@@ -239,12 +247,14 @@ export default function ProjectPage() {
                 {selectedAsset?.type === 'character' && (
                   <CharacterCreator
                     onAssetCreated={handleAssetCreated}
+                    onAssetDeleted={handleDeleteAsset}
                     existingAsset={selectedAsset as ICharacterAsset}
                   />
                 )}
                 {selectedAsset?.type === 'environment' && (
                   <EnvironmentCreator
                     onAssetCreated={handleAssetCreated}
+                    onAssetDeleted={handleDeleteAsset}
                     existingAsset={selectedAsset as IEnvironmentAsset}
                   />
                 )}

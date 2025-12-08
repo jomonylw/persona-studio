@@ -17,11 +17,13 @@ import { generateUUID } from '@/lib/utils'
 
 interface CharacterCreatorProps {
   onAssetCreated: (asset: ICharacterAsset) => void
+  onAssetDeleted: (assetId: string) => void
   existingAsset?: ICharacterAsset | null
 }
 
 export function CharacterCreator({
   onAssetCreated,
+  onAssetDeleted,
   existingAsset,
 }: CharacterCreatorProps) {
   const t = useTranslations('CharacterCreator')
@@ -116,6 +118,7 @@ export function CharacterCreator({
           <TabsContent value="generate" className="pt-4">
             <CharacterEditor
               onAssetCreated={onAssetCreated}
+              onAssetDeleted={onAssetDeleted}
               existingAsset={existingAsset}
             />
           </TabsContent>

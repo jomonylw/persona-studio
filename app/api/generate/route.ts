@@ -41,6 +41,8 @@ interface GenerationRequest {
   artStyle?: string
   environmentPrompt?: string
   isFinetune?: boolean
+  finetunePrompt?: string
+  promptTask?: 'finetune'
 }
 
 interface ImageConfig {
@@ -99,6 +101,8 @@ export async function POST(req: Request) {
       artStyle,
       environmentPrompt,
       isFinetune,
+      finetunePrompt,
+      promptTask,
     } = body
     let { finetuneImage, referenceImage } = body
     const { referenceAssets } = body
@@ -129,6 +133,9 @@ export async function POST(req: Request) {
               resolvedArtStyle,
               environment,
             )
+    } else if (promptTask === 'finetune' && finetunePrompt) {
+      const prompts = getPrompts(locale)
+      prompt = prompts.finetune(finetunePrompt)
     }
     // This is a single character descriptor generation
     else if (characterDescriptor) {

@@ -20,7 +20,14 @@ import {
   IntlMessages,
   IImageHistory,
 } from '@/types'
-import { Loader2, Sparkles, ChevronsUpDown, Wand2 } from 'lucide-react'
+import {
+  Loader2,
+  Sparkles,
+  ChevronsUpDown,
+  Wand2,
+  Trash2,
+  Check,
+} from 'lucide-react'
 import { toast } from 'sonner'
 import { generateUUID } from '@/lib/utils'
 import { ImageUploader } from './image-uploader'
@@ -28,11 +35,13 @@ import { ImageFinetuneModal } from './image-finetune-modal'
 
 interface CharacterEditorProps {
   onAssetCreated: (asset: ICharacterAsset) => void
+  onAssetDeleted: (assetId: string) => void
   existingAsset?: ICharacterAsset | null
 }
 
 export function CharacterEditor({
   onAssetCreated,
+  onAssetDeleted,
   existingAsset,
 }: CharacterEditorProps) {
   const t = useTranslations('CharacterEditor')
@@ -60,6 +69,7 @@ export function CharacterEditor({
   const [isInspiring, setIsInspiring] = useState(false)
   const [isExpanding, setIsExpanding] = useState(false)
   const [isGenerating, setIsGenerating] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
   const [referenceImage, setReferenceImage] = useState<string | null>(null)
 
   const [descriptor, setDescriptor] = useState<IPersonAppearance | null>(
@@ -144,6 +154,12 @@ export function CharacterEditor({
   const handleGenerate = async () => {
     if (!descriptor) {
       toast.error(t('errorDescriptorRequired'))
+      return
+    }
+
+    // Check if the character name is filled
+    if (!descriptor.person_appearance.basic_info.name.trim()) {
+      toast.error(t('errorNameRequired'))
       return
     }
     setIsGenerating(true)
@@ -250,6 +266,7 @@ export function CharacterEditor({
           finetunePrompt: prompt,
           finetuneImage: baseImage.imageUrl,
           referenceImage: referenceImage,
+          promptTask: 'finetune',
         }),
       })
       if (!response.ok) {
@@ -280,6 +297,18 @@ export function CharacterEditor({
       )
     } finally {
       setIsGenerating(false)
+    }
+  }
+
+  const handleConfirmDelete = () => {
+    if (!existingAsset) return
+
+    if (isDeleting) {
+      onAssetDeleted(existingAsset.id)
+      toast.success(t('successCharacterDeleted'))
+    } else {
+      setIsDeleting(true)
+      toast.warning(t('warningConfirmDelete'))
     }
   }
 
@@ -538,6 +567,24 @@ export function CharacterEditor({
           </CardContent>
         </Card>
       )}
+
+      {existingAsset && existingAsset.id && (
+        <div onMouseLeave={() => setIsDeleting(false)}>
+          <Button
+            variant="destructive"
+            className="w-full"
+            onClick={handleConfirmDelete}
+          >
+            {isDeleting ? (
+              <Check className="mr-2 h-4 w-4" />
+            ) : (
+              <Trash2 className="mr-2 h-4 w-4" />
+            )}
+            {isDeleting ? t('confirmDeleteButton') : t('deleteButton')}
+          </Button>
+        </div>
+      )}
+
       {currentAsset && isFinetuneModalOpen && (
         <ImageFinetuneModal
           isOpen={isFinetuneModalOpen}

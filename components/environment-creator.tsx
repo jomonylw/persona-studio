@@ -17,11 +17,13 @@ import { generateUUID } from '@/lib/utils'
 
 interface EnvironmentCreatorProps {
   onAssetCreated: (asset: IEnvironmentAsset) => void
+  onAssetDeleted: (assetId: string) => void
   existingAsset?: IEnvironmentAsset | null
 }
 
 export function EnvironmentCreator({
   onAssetCreated,
+  onAssetDeleted,
   existingAsset,
 }: EnvironmentCreatorProps) {
   const t = useTranslations('EnvironmentCreator')
@@ -95,6 +97,7 @@ export function EnvironmentCreator({
           <TabsContent value="generate" className="pt-4">
             <EnvironmentEditor
               onAssetCreated={onAssetCreated}
+              onAssetDeleted={onAssetDeleted}
               existingAsset={existingAsset}
             />
           </TabsContent>

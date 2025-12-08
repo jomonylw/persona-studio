@@ -184,12 +184,17 @@
     "errorIdeaRequired": "请输入人物概念或上传参考图。",
     "errorDescriptorFailed": "生成人物卡片失败。",
     "errorDescriptorRequired": "请先生成人物卡片。",
+    "errorNameRequired": "请在人物卡片中输入人物姓名。",
     "infoGeneratingPortrait": "正在生成人物肖像...",
     "successPortraitGenerated": "人物肖像已成功生成！",
     "errorPortraitFailed": "生成人物肖像失败。",
     "infoExpandingIdea": "正在获取新想法...",
     "successIdeaExpanded": "已生成新想法！",
-    "errorIdeaFailed": "获取新想法失败。"
+    "errorIdeaFailed": "获取新想法失败。",
+    "deleteButton": "删除人物",
+    "confirmDeleteButton": "确认删除",
+    "warningConfirmDelete": "再次点击以确认删除。",
+    "successCharacterDeleted": "人物已成功删除！"
   },
   "EnvironmentCreator": {
     "title": "场景创建器",
@@ -218,6 +223,10 @@
     "errorImageFailed": "生成场景图片失败。",
     "infoInspiring": "正在激发新灵感...",
     "successInspiring": "已成功激发新灵感！",
-    "errorInspiringFailed": "激发新灵感失败。"
+    "errorInspiringFailed": "激发新灵感失败。",
+    "deleteButton": "删除场景",
+    "confirmDeleteButton": "确认删除",
+    "warningConfirmDelete": "再次点击以确认删除。",
+    "successEnvironmentDeleted": "场景已成功删除！"
   }
 }
