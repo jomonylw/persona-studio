@@ -2,27 +2,27 @@ import { StyleConfig } from './types'
 
 export const selfie: StyleConfig = {
   role: {
-    en: 'You are an expert in social media aesthetics, specializing in capturing authentic, engaging, and high-quality selfies that tell a story.',
-    zh: '你是一位社交媒体美学专家，擅长捕捉真实、迷人且高质量的自拍，并通过自拍讲述故事。',
+    en: 'Your function is to conceive a frame for a first-person perspective (POV) selfie based on the provided instructions.',
+    zh: '你的功能是根据指令，构思一个完全符合第一人称视角（POV）的自拍画面。',
   },
   task: {
-    en: 'Your task is to envision a natural yet stylized selfie based on the provided character and environment references.',
-    zh: '你的任务是基于提供的人物和场景参考，构思一张自然但有风格的自拍。',
+    en: "Your task is to conceive an absolute first-person perspective (POV) selfie. The frame must appear as if seen through the viewer's own eyes, with the character's eyes looking directly at the lens, and the phone itself must not be visible in the shot.",
+    zh: '你的任务是构思一张绝对第一人称视角（POV）的自拍。画面必须仿佛是观看者自己的眼睛所见，人物的眼睛直视镜头，且手机本身绝不能出现在画面中。',
   },
   scenario: {
     single: {
-      en: 'The character is taking a selfie to document their presence in this environment. It feels personal and direct.',
-      zh: '人物正在自拍以记录他们在这个环境中的存在。感觉私人且直接。',
+      en: 'The character is taking a selfie to document their presence in this environment. It feels personal and direct. As it is a front-camera perspective, the phone itself is not visible in the shot.',
+      zh: '人物正在自拍以记录他们在这个环境中的存在。感觉私人且直接。由于是前置摄像头视角，手机本身不会出现在画面中。',
     },
     multi: {
-      en: 'The characters are taking a group selfie (we-fie) together. Focus on their closeness and the shared memory.',
-      zh: '人物正在一起拍合影自拍。关注他们的亲密感和共同的记忆。',
+      en: 'The characters are taking a group selfie (we-fie) together. Focus on their closeness and the shared memory. As it is a front-camera perspective, the phone itself is not visible in the shot.',
+      zh: '人物正在一起拍合影自拍。关注他们的亲密感和共同的记忆。由于是前置摄像头视角，手机本身不会出现在画面中。',
     },
   },
   gesture: {
     single: {
-      en: 'Looking directly into the lens, holding the phone with one hand extended. The frame implies a slight handheld shake or tilt, capturing a spontaneous and authentic moment.',
-      zh: '直视镜头，单手伸展手持手机自拍。画面暗示了轻微的手持抖动或倾斜，捕捉自发和真实的瞬间。',
+      en: "The character's eyes must be looking directly into the camera lens, making direct eye contact with the viewer. The composition implies the photo was taken at arm's length, possibly showing a bit of the arm or shoulder at the edge of the frame, reinforcing the self-shot feel.",
+      zh: '人物的眼睛必须直视镜头，与观看者产生直接的目光接触。构图暗示了照片是在一臂之遥的距离拍摄的，画面的边缘可能会稍微露出部分手臂或肩膀，以增强自拍的感觉。',
     },
     multi: {
       en: 'One character holds the phone with one hand for a group shot. Heads close together. The composition feels naturally unstable, like a quick snapshot.',
@@ -30,26 +30,26 @@ export const selfie: StyleConfig = {
     },
   },
   composition: {
-    en: 'Wide-angle or slight fisheye distortion typical of front-facing cameras. The subject dominates the foreground, with the environment visible in the background.',
-    zh: '典型的前置摄像头广角或轻微鱼眼畸变。主体占据前景主导地位，环境在背景中可见。',
+    en: "POV shot, first-person perspective (Viewer's Eye Perspective). The composition is typical of a selfie taken with a front-facing camera, featuring a slight wide-angle effect. To enhance realism, subtle imperfections like minor lens flare or slight chromatic aberration from strong light sources are acceptable. Avoid excessive barrel distortion like that of a fisheye lens. The subject is in the foreground, with the background visible but slightly blurred due to a shallow depth of field. The phone used to take the picture is not visible.",
+    zh: 'POV镜头，第一人称视角（观看者之眼）。构图是典型的前置摄像头自拍，带有轻微的广角效果。为了增强真实感，允许出现由强光源引起的微妙镜头光晕或轻微的色差。避免类似鱼眼镜头的过度桶形失真。主体位于前景，背景可见但因景深较浅而略带模糊。用于拍照的手机本身不可见。',
   },
   lighting: {
-    en: 'Natural light and environmental light, avoiding artificial studio lighting. Soft daylight or ambient light from the surroundings that fits the scene naturally.',
-    zh: '自然光及环境光，非人工布光。使用柔和的日光或场景中的环境光，确保光感自然真实。',
+    en: 'The lighting is typically imperfect and casual, sourced from the real environment, not artificial studio lighting. It may not be perfectly even, allowing for slight local overexposure (e.g., from a window) or underexposure to reflect the complexity of real-world light.',
+    zh: '光线通常是不完美的、随意的，源自真实环境，而非人工布光。它可能不完全均匀，允许出现轻微的局部过曝（如窗边的亮光）或曝光不足，以反映真实世界光线的复杂性。',
   },
   coreStyle: {
     style: { en: 'Social Media Selfie', zh: '社交媒体自拍' },
     camera: {
-      en: 'iPhone Front Camera, High Quality',
-      zh: 'iPhone 前置摄像头，高质量',
+      en: 'Smartphone Front Camera',
+      zh: '智能手机前置摄像头',
     },
     texture: {
-      en: 'Sharp eyes, slight motion blur or handheld shake, vibrant digital colors',
-      zh: '眼部清晰，带有轻微动态模糊或手持抖动感，鲜艳的数码色彩',
+      en: "The focus is sharp on the character's face (especially the eyes), but may also have extremely subtle motion blur from slight handshake. A not 100% perfect focus is acceptable. In low-light areas, slight digital noise is present. The color reproduction is realistic, with subtle color temperature shifts due to ambient light.",
+      zh: '人物面部（尤其是眼睛）的焦点清晰锐利，但也可能因为轻微的手部抖动而产生极其细微的动态模糊。允许出现并非百分之百完美的对焦。在暗部或光线不足的区域，存在轻微的数码噪点。色彩还原真实，偶尔会因环境光影响产生微妙的色温偏移。',
     },
     output: {
-      en: 'Authentic Handheld Selfie, Personal, Engaging',
-      zh: '真实手持自拍，私人，迷人',
+      en: 'Authentic POV Selfie, Personal, Engaging, First-Person View',
+      zh: '真实POV自拍，私人，迷人，第一人称视角',
     },
   },
 }

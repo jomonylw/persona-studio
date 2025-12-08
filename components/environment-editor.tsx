@@ -13,6 +13,7 @@ import { toast } from 'sonner'
 import { generateUUID } from '@/lib/utils'
 import { ImageUploader } from './image-uploader'
 import { Input } from './ui/input'
+import { ImageFinetuneModal } from './image-finetune-modal'
 
 interface EnvironmentEditorProps {
   onAssetCreated: (asset: IEnvironmentAsset) => void
@@ -44,12 +45,17 @@ export function EnvironmentEditor({
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     existingAsset?.imageUrl,
   )
+  const [isFinetuneModalOpen, setIsFinetuneModalOpen] = useState(false)
+  const [currentAsset, setCurrentAsset] = useState<IEnvironmentAsset | null>(
+    existingAsset || null,
+  )
 
   useEffect(() => {
     setName(existingAsset?.name || '')
     setPrompt(existingAsset?.prompt || '')
     setImageUrl(existingAsset?.imageUrl)
     setReferenceImage(existingAsset?.referenceImage || null)
+    setCurrentAsset(existingAsset || null)
   }, [existingAsset])
 
   const handleInspire = async () => {
@@ -188,6 +194,59 @@ export function EnvironmentEditor({
     }
   }
 
+  const handleFinetune = async (
+    baseImage: IImageHistory,
+    prompt: string,
+    referenceImage: string | null,
+  ) => {
+    if (!existingAsset) return
+    setIsGenerating(true)
+    toast.info(t('infoGeneratingImage'))
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          environmentPrompt: existingAsset.prompt,
+          model: imageModel,
+          locale,
+          aspectRatio,
+          resolution,
+          finetunePrompt: prompt,
+          finetuneImage: baseImage.imageUrl,
+          referenceImage: referenceImage,
+        }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.details || 'Failed to generate image.')
+      }
+      const { imageUrl: newImageUrl } = await response.json()
+      const newHistoryEntry: IImageHistory = {
+        id: generateUUID(),
+        imageUrl: newImageUrl,
+        prompt: prompt,
+        createdAt: new Date().toISOString(),
+      }
+      const updatedAsset: IEnvironmentAsset = {
+        ...existingAsset,
+        imageUrl: newImageUrl,
+        history: [...(existingAsset.history || []), newHistoryEntry],
+        selectedHistoryId: newHistoryEntry.id,
+      }
+      updateEnvironment(updatedAsset)
+      onAssetCreated(updatedAsset)
+      setImageUrl(newImageUrl)
+      toast.success(t('successImageGenerated'))
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t('errorImageFailed'),
+      )
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   return (
     <div className="space-y-4">
       <div className="space-y-2">
@@ -248,7 +307,10 @@ export function EnvironmentEditor({
       {imageUrl && (
         <Card>
           <CardContent className="pt-6">
-            <div className="w-full aspect-square bg-muted rounded-lg overflow-hidden">
+            <div
+              className="w-full aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer"
+              onClick={() => setIsFinetuneModalOpen(true)}
+            >
               <img
                 src={imageUrl}
                 alt="Generated Environment"
@@ -257,6 +319,39 @@ export function EnvironmentEditor({
             </div>
           </CardContent>
         </Card>
+      )}
+      {currentAsset && isFinetuneModalOpen && (
+        <ImageFinetuneModal
+          isOpen={isFinetuneModalOpen}
+          onClose={() => setIsFinetuneModalOpen(false)}
+          imageHistory={currentAsset.history || []}
+          selectedHistoryId={currentAsset.selectedHistoryId}
+          referenceImage={referenceImage}
+          onGenerate={handleFinetune}
+          onSelect={(id) => {
+            const selectedImage = currentAsset.history?.find((h) => h.id === id)
+            if (selectedImage) {
+              const updatedAsset = {
+                ...currentAsset,
+                selectedHistoryId: id,
+                imageUrl: selectedImage.imageUrl,
+              } as IEnvironmentAsset
+              updateEnvironment(updatedAsset)
+              setCurrentAsset(updatedAsset)
+              setImageUrl(selectedImage.imageUrl)
+            }
+          }}
+          onDelete={(id) => {
+            const newHistory = currentAsset.history?.filter((h) => h.id !== id)
+            const updatedAsset = {
+              ...currentAsset,
+              history: newHistory,
+            } as IEnvironmentAsset
+            updateEnvironment(updatedAsset)
+            setCurrentAsset(updatedAsset)
+          }}
+          onReferenceImageChange={setReferenceImage}
+        />
       )}
     </div>
   )

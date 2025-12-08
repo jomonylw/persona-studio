@@ -24,6 +24,7 @@ import { Loader2, Sparkles, ChevronsUpDown, Wand2 } from 'lucide-react'
 import { toast } from 'sonner'
 import { generateUUID } from '@/lib/utils'
 import { ImageUploader } from './image-uploader'
+import { ImageFinetuneModal } from './image-finetune-modal'
 
 interface CharacterEditorProps {
   onAssetCreated: (asset: ICharacterAsset) => void
@@ -67,10 +68,15 @@ export function CharacterEditor({
   const [imageUrl, setImageUrl] = useState<string | undefined>(
     existingAsset?.imageUrl,
   )
+  const [isFinetuneModalOpen, setIsFinetuneModalOpen] = useState(false)
+  const [currentAsset, setCurrentAsset] = useState<ICharacterAsset | null>(
+    existingAsset || null,
+  )
 
   useEffect(() => {
     setDescriptor(existingAsset?.descriptor || null)
     setImageUrl(existingAsset?.imageUrl)
+    setCurrentAsset(existingAsset || null)
   }, [existingAsset])
 
   const handleInspire = async () => {
@@ -212,6 +218,61 @@ export function CharacterEditor({
       }
       onAssetCreated(newAsset) // Keep this to notify parent components if needed
 
+      toast.success(t('successPortraitGenerated'))
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : t('errorPortraitFailed'),
+      )
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  const handleFinetune = async (
+    baseImage: IImageHistory,
+    prompt: string,
+    referenceImage: string | null,
+  ) => {
+    // Similar to handleGenerate, but for finetuning
+    if (!descriptor) return
+    setIsGenerating(true)
+    toast.info(t('infoGeneratingPortrait'))
+    try {
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          characterDescriptor: descriptor,
+          model: imageModel,
+          locale,
+          aspectRatio,
+          resolution,
+          finetunePrompt: prompt,
+          finetuneImage: baseImage.imageUrl,
+          referenceImage: referenceImage,
+        }),
+      })
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.details || 'Failed to generate image.')
+      }
+      const { imageUrl: newImageUrl } = await response.json()
+      // Create a new history entry and update the asset
+      const newHistoryEntry: IImageHistory = {
+        id: generateUUID(),
+        imageUrl: newImageUrl,
+        prompt: prompt,
+        createdAt: new Date().toISOString(),
+      }
+      const updatedAsset: ICharacterAsset = {
+        ...(existingAsset as ICharacterAsset),
+        imageUrl: newImageUrl,
+        history: [...(existingAsset?.history || []), newHistoryEntry],
+        selectedHistoryId: newHistoryEntry.id,
+      }
+      updateCharacter(updatedAsset)
+      onAssetCreated(updatedAsset)
+      setImageUrl(newImageUrl) // Update local state to show the new image
       toast.success(t('successPortraitGenerated'))
     } catch (error) {
       toast.error(
@@ -425,7 +486,10 @@ export function CharacterEditor({
           </CardHeader>
           <CardContent className="space-y-4">
             {imageUrl && (
-              <div className="w-full aspect-square bg-muted rounded-lg overflow-hidden">
+              <div
+                className="w-full aspect-square bg-muted rounded-lg overflow-hidden cursor-pointer"
+                onClick={() => setIsFinetuneModalOpen(true)}
+              >
                 <img
                   src={imageUrl}
                   alt="Character Portrait"
@@ -473,6 +537,39 @@ export function CharacterEditor({
             </Collapsible>
           </CardContent>
         </Card>
+      )}
+      {currentAsset && isFinetuneModalOpen && (
+        <ImageFinetuneModal
+          isOpen={isFinetuneModalOpen}
+          onClose={() => setIsFinetuneModalOpen(false)}
+          imageHistory={currentAsset.history || []}
+          selectedHistoryId={currentAsset.selectedHistoryId}
+          referenceImage={referenceImage}
+          onGenerate={handleFinetune}
+          onSelect={(id) => {
+            const selectedImage = currentAsset.history?.find((h) => h.id === id)
+            if (selectedImage) {
+              const updatedAsset = {
+                ...currentAsset,
+                selectedHistoryId: id,
+                imageUrl: selectedImage.imageUrl,
+              } as ICharacterAsset
+              updateCharacter(updatedAsset)
+              setCurrentAsset(updatedAsset)
+              setImageUrl(selectedImage.imageUrl)
+            }
+          }}
+          onDelete={(id) => {
+            const newHistory = currentAsset.history?.filter((h) => h.id !== id)
+            const updatedAsset = {
+              ...currentAsset,
+              history: newHistory,
+            } as ICharacterAsset
+            updateCharacter(updatedAsset)
+            setCurrentAsset(updatedAsset)
+          }}
+          onReferenceImageChange={setReferenceImage}
+        />
       )}
     </div>
   )

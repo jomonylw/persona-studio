@@ -8,7 +8,7 @@ Persona Studio is a powerful and intuitive web application designed for creating
 
 ## Key Features
 
-- **Advanced Character Creation**: 
+- **Advanced Character Creation**:
   - **Multi-modal Inspiration**: Generate detailed character cards from a simple text idea, a reference image, or a combination of both.
   - **AI-Powered Idea Expansion**: Let the AI expand your brief character concepts into rich, detailed descriptions.
   - **Structured Editor**: Fine-tune every aspect of your character through a comprehensive, structured editor, from basic info and appearance to clothing and mood.
@@ -16,12 +16,12 @@ Persona Studio is a powerful and intuitive web application designed for creating
 
 - **Versatile Environment Creation**: Build immersive scenes and environments by providing text descriptions or uploading your own images.
 
-- **Dynamic Photoshoot Studio**: 
+- **Dynamic Photoshoot Studio**:
   - **Scene Composition**: Combine your created characters and environments in a dedicated workspace to craft the perfect scene.
   - **Rich Artistic Styles**: Choose from a curated list of **14 distinct art styles**, including Cinematic, High Fashion, Cyberpunk, Vintage Film, and more, to define the look and feel of your image.
   - **"Inspire Me" for Scenes**: Generate creative photoshoot prompts based on your selected assets and chosen art style, sparking new ideas.
 
-- **AI-Powered Image Generation & Finetuning**: 
+- **AI-Powered Image Generation & Finetuning**:
   - **High-Quality Generation**: Generate high-resolution images based on your detailed compositions.
   - **Iterative Finetuning**: Easily refine and edit your generated images. A dedicated modal allows you to make precise adjustments using new prompts and even reference images for composition and style.
   - **Full Version History**: Never lose a good shot. The application maintains a complete history for each photo, allowing you to revisit, compare, and build upon previous versions.
@@ -58,19 +58,19 @@ Here's a brief overview of the workflow:
 
 ![Asset Creation](screenshot/asset_create.png)
 
-*Create unique characters and environments with detailed descriptions or by uploading your own images.*
+_Create unique characters and environments with detailed descriptions or by uploading your own images._
 
 ### Asset Selection
 
 ![Asset Selection](screenshot/asset_selection.png)
 
-*Easily manage and select your created assets for use in the Photoshoot Studio.*
+_Easily manage and select your created assets for use in the Photoshoot Studio._
 
 ### Photoshoot Studio
 
 ![Photoshoot Studio](screenshot/photo_shoot.png)
 
-*The heart of the application, where you can combine assets, craft prompts, and generate stunning AI-powered images.*
+_The heart of the application, where you can combine assets, craft prompts, and generate stunning AI-powered images._
 
 ## Getting Started
 
@@ -85,18 +85,21 @@ To get started with Persona Studio, you'll need to set up your environment and i
 ### Installation
 
 1.  **Clone the repository:**
+
     ```bash
     git clone https://github.com/your-username/persona-studio.git
     cd persona-studio
     ```
 
 2.  **Install dependencies:**
+
     ```bash
     pnpm install
     ```
 
 3.  **Set up environment variables:**
     Create a `.env.local` file in the root of the project and add your Google Gemini API key:
+
     ```
     GEMINI_API_KEY=your_api_key_here
     ```

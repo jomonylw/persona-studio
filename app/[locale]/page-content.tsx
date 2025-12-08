@@ -101,23 +101,31 @@ export default function ProjectPage() {
   }
 
   const handleAssetCreated = (asset: IAsset) => {
+    let isExisting = false
     if (asset.type === 'character') {
-      const existing = characters.find((c) => c.id === asset.id)
-      if (existing) {
+      isExisting = characters.some((c) => c.id === asset.id)
+      if (isExisting) {
         updateCharacter(asset as ICharacterAsset)
       } else {
         addCharacter(asset as ICharacterAsset)
       }
     } else {
-      const existing = environments.find((e) => e.id === asset.id)
-      if (existing) {
+      isExisting = environments.some((e) => e.id === asset.id)
+      if (isExisting) {
         updateEnvironment(asset as IEnvironmentAsset)
       } else {
         addEnvironment(asset as IEnvironmentAsset)
       }
     }
-    setSelectedAsset(null) // Deselect after creation/update
-    setLeftColumnView('asset-lists')
+
+    // Only go back to the list if it's a new asset
+    if (!isExisting) {
+      setSelectedAsset(null)
+      setLeftColumnView('asset-lists')
+    } else {
+      // If it's an existing asset, just update the state for the editor
+      setSelectedAsset(asset)
+    }
   }
 
   const handleDeleteAsset = (assetId: string) => {

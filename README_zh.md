@@ -55,19 +55,22 @@ Persona Studio 基于现代技术栈构建，包括 Next.js、React 和 Tailwind
 ## 屏幕截图
 
 ### 资源创建
+
 ![资源创建](screenshot/asset_create.png)
 
-*通过详细描述或上传您自己的图片来创建独特的角色和环境。*
+_通过详细描述或上传您自己的图片来创建独特的角色和环境。_
 
 ### 资源选择
+
 ![资源选择](screenshot/asset_selection.png)
 
-*轻松管理和选择您创建的资源，以便在摄影工作室中使用。*
+_轻松管理和选择您创建的资源，以便在摄影工作室中使用。_
 
 ### 摄影工作室
+
 ![摄影工作室](screenshot/photo_shoot.png)
 
-*应用程序的核心，您可以在这里组合资源、编写提示并生成令人惊叹的 AI 图像。*
+_应用程序的核心，您可以在这里组合资源、编写提示并生成令人惊叹的 AI 图像。_
 
 ## 快速上手
 
@@ -82,18 +85,21 @@ Persona Studio 基于现代技术栈构建，包括 Next.js、React 和 Tailwind
 ### 安装
 
 1.  **克隆仓库:**
+
     ```bash
     git clone https://github.com/your-username/persona-studio.git
     cd persona-studio
     ```
 
 2.  **安装依赖:**
+
     ```bash
     pnpm install
     ```
 
 3.  **设置环境变量:**
     在项目根目录下创建一个 `.env.local` 文件，并添加您的 Google Gemini API 密钥：
+
     ```
     GEMINI_API_KEY=your_api_key_here
     ```
