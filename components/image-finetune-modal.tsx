@@ -15,7 +15,19 @@ import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area'
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 import { useTranslations } from 'next-intl'
-import { Sparkles, Trash2, Check, Download, Loader2 } from 'lucide-react'
+import {
+  Sparkles,
+  Trash2,
+  Check,
+  Download,
+  Loader2,
+  ChevronRight,
+} from 'lucide-react'
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible'
 import { ImageUploader } from './image-uploader'
 import { Label } from './ui/label'
 
@@ -131,11 +143,11 @@ export function ImageFinetuneModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl h-[90vh] flex flex-col">
+      <DialogContent className="w-full h-full max-w-7xl md:h-[90vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>{t('title')}</DialogTitle>
         </DialogHeader>
-        <div className="flex flex-col md:grid md:grid-cols-4 gap-4 flex-grow overflow-hidden">
+        <div className="flex flex-col md:grid md:grid-cols-5 gap-4 flex-grow overflow-hidden">
           {/* History List */}
           <div className="order-1 md:order-none md:col-span-1 flex flex-col gap-2 min-h-40 md:min-h-0">
             <ScrollArea className="border rounded-md flex-grow">
@@ -224,7 +236,19 @@ export function ImageFinetuneModal({
               </div>
               <ScrollBar orientation="horizontal" />
             </ScrollArea>
-            <div className="space-y-1.5">
+            <Collapsible defaultOpen={false} className="space-y-1.5 md:hidden">
+              <CollapsibleTrigger className="w-full flex items-center justify-between">
+                <Label htmlFor="reference-image">{t('referenceImage')}</Label>
+                <ChevronRight className="h-4 w-4" />
+              </CollapsibleTrigger>
+              <CollapsibleContent>
+                <ImageUploader
+                  image={referenceImage}
+                  setImage={handleReferenceImageChange}
+                />
+              </CollapsibleContent>
+            </Collapsible>
+            <div className="space-y-1.5 hidden md:block">
               <Label htmlFor="reference-image">{t('referenceImage')}</Label>
               <ImageUploader
                 image={referenceImage}
@@ -234,7 +258,7 @@ export function ImageFinetuneModal({
           </div>
 
           {/* Main View */}
-          <div className="order-2 md:order-none md:col-span-3 flex flex-col gap-4 min-h-0 flex-grow">
+          <div className="order-2 md:order-none md:col-span-4 flex flex-col gap-4 min-h-0 flex-grow">
             <div className="flex-grow relative border rounded-md flex items-center justify-center bg-muted/20">
               {activeImage && activeImage.imageUrl ? (
                 <Image

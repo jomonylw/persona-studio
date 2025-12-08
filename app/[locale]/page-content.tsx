@@ -229,7 +229,7 @@ export default function ProjectPage() {
             <Card>
               <CardHeader>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   onClick={() => setLeftColumnView('asset-lists')}
                 >
                   &larr; {t('backToList')}
