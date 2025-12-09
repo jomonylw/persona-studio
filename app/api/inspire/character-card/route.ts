@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { getPrompts } from '@/lib/prompts'
 import { IPersonAppearance } from '@/types'
 import { Part } from '@google/genai'
+import { compressImage } from '@/lib/image-utils'
 
 const MODEL_NAME = GEMINI_TEXT_MODEL_NAME
 
@@ -11,18 +12,18 @@ export async function POST(req: Request) {
   try {
     const {
       userIdea,
-      image,
+      initialImage,
       model,
       locale = 'en',
     } = (await req.json()) as {
       userIdea: string
-      image?: string
+      initialImage?: string
       model?: string
       locale?: 'en' | 'zh'
     }
 
     // Allow empty userIdea if an image is provided
-    if (!userIdea && !image) {
+    if (!userIdea && !initialImage) {
       return NextResponse.json(
         { error: 'User idea or image is required.' },
         { status: 400 },
@@ -31,20 +32,16 @@ export async function POST(req: Request) {
 
     const prompts = getPrompts(locale)
     // Ensure userIdea is at least an empty string
-    const prompt = prompts.characterCard(userIdea || '', !!image)
+    const prompt = prompts.characterCard(userIdea || '', !!initialImage)
 
     const contents: Part[] = [{ text: prompt }]
 
-    if (image) {
-      const parts = image.split(',')
-      const data = parts.length > 1 ? parts[1] : image
-      const mimeTypeMatch =
-        parts.length > 1 ? parts[0].match(/data:(.*);base64/) : null
-      const mimeType = mimeTypeMatch ? mimeTypeMatch[1] : 'image/jpeg'
+    if (initialImage) {
+      const compressedImage = await compressImage(initialImage)
       contents.push({
         inlineData: {
-          data: data,
-          mimeType: mimeType,
+          data: compressedImage,
+          mimeType: 'image/jpeg',
         },
       })
     }

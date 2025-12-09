@@ -1,6 +1,9 @@
 # 依赖安装阶段
-FROM node:20-slim AS deps
+FROM node:20-alpine AS deps
 WORKDIR /app
+
+# 为 sharp 安装 vips-dev
+RUN apk add --no-cache vips-dev
 
 # 安装 pnpm
 RUN npm install -g pnpm
@@ -13,8 +16,11 @@ RUN pnpm install --prod
 
 
 # 构建阶段
-FROM node:20-slim AS builder
+FROM node:20-alpine AS builder
 WORKDIR /app
+
+# 为 sharp 安装 vips-dev
+RUN apk add --no-cache vips-dev
 
 # 安装 pnpm
 RUN npm install -g pnpm

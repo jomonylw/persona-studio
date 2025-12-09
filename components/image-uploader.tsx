@@ -5,7 +5,6 @@ import { useDropzone, FileRejection, Accept } from 'react-dropzone'
 import { toast } from 'sonner'
 import { Image as ImageIcon, X, Loader2 } from 'lucide-react'
 import { useTranslations } from 'next-intl'
-import imageCompression from 'browser-image-compression'
 import Image from 'next/image'
 import { Button } from './ui/button'
 import { useStudio } from './studio-context'
@@ -45,19 +44,7 @@ export function ImageUploader({
         const file = acceptedFiles[0]
         setIsLoading(true)
         try {
-          const controller = new AbortController()
-          const timeoutId = setTimeout(() => controller.abort(), 15000) // 15s timeout
-
-          const compressedFile = await imageCompression(file, {
-            maxSizeMB: 1,
-            maxWidthOrHeight: 1024,
-            useWebWorker: false, // Disable web worker to prevent file reference issues on mobile
-            signal: controller.signal,
-          })
-
-          clearTimeout(timeoutId)
-
-          const base64 = await fileToBase64(compressedFile)
+          const base64 = await fileToBase64(file)
           if (isUserUploadingRef) {
             isUserUploadingRef.current = true
           }
@@ -72,18 +59,10 @@ export function ImageUploader({
           } else {
             errorMessage = String(error)
           }
-
-          console.error('Image compression error:', error)
-
-          if (error instanceof Error && error.name === 'AbortError') {
-            toast.error(
-              `Image compression timed out. Please try a smaller file.`,
-            )
-          } else {
-            toast.error(t('compressionFailed'), {
-              description: errorMessage,
-            })
-          }
+          console.error('File reading error:', error)
+          toast.error('Failed to read file', {
+            description: errorMessage,
+          })
         } finally {
           setIsLoading(false)
         }
@@ -134,7 +113,7 @@ export function ImageUploader({
           {isLoading ? (
             <div className="flex flex-col items-center justify-center">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
-              <p className="mt-2 text-sm text-gray-500">{t('compressing')}</p>
+              <p className="mt-2 text-sm text-gray-500">{t('processing')}</p>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center">

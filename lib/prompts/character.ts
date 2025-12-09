@@ -1,5 +1,19 @@
 export const characterPrompt = {
-  en: (userIdea?: string): string => {
+  en: (userIdea?: string, hasImage?: boolean): string => {
+    if (hasImage) {
+      return `
+You are an expert character designer. A user has provided a reference image and may have added some text ideas.
+Your task is to analyze the image and text, then generate a rich, descriptive paragraph focusing on the character's **visual appearance**.
+If the user provided an idea, use it as a guide, but prioritize the visual information from the image.
+
+**User's Idea:** "${userIdea || 'No additional idea provided.'}"
+
+**Analysis & Expansion Requirements:**
+1.  **Analyze the Image:** Describe the character in the image, covering their identity (age, gender, ethnicity), physical appearance (build, posture), facial features (face shape, eyes, hair), fashion, and overall vibe.
+2.  **Synthesize with User Idea:** If there's a user idea, merge it with the image details. The image is the primary source of truth; use the text to fill in gaps or refine details.
+3.  **Create a Cohesive Paragraph:** Your output must be a single, evocative paragraph that paints a clear, detailed picture of the character.
+`
+    }
     if (userIdea) {
       return `
 You are an expert character designer and creative writer. A user has provided a character concept and needs help elaborating on it to create a detailed visual profile.
@@ -32,7 +46,21 @@ Your output should be a single, cohesive, and evocative paragraph that paints a 
 `
     }
   },
-  zh: (userIdea?: string): string => {
+  zh: (userIdea?: string, hasImage?: boolean): string => {
+    if (hasImage) {
+      return `
+你是一位专业的角色设计师。用户提供了一张参考图片，并可能附带了一些文字想法。
+你的任务是分析图片和文字，然后生成一段丰富、具象的描述，重点在于角色的**视觉外貌**。
+如果用户提供了想法，请将其作为指导，但优先考虑图片中的视觉信息。
+
+**用户的想法:** "${userIdea || '未提供额外想法。'}"
+
+**分析与扩展要求:**
+1.  **分析图片:** 描述图片中的角色，涵盖其身份（年龄、性别、种族）、身体外貌（体型、体态）、面部特征（脸型、眼睛、发型）、时尚风格和整体气质。
+2.  **与用户想法结合:** 如果有用户想法，请将其与图片细节融合。图片是主要信息来源；使用文字来填补空白或完善细节。
+3.  **创建连贯的段落:** 你的输出必须是一个单一、富有画面感的段落，清晰、详细地描绘出角色形象。
+`
+    }
     if (userIdea) {
       return `
 你是一位专业的角色设计师和创意作家。用户提供了一个人物概念，需要你帮助将其扩展为一个详细的视觉形象。

@@ -26,8 +26,7 @@
   "ImageUploader": {
     "fileRejected": "文件无效。请确保它是图片文件。",
     "imageUploaded": "图片上传成功。",
-    "compressionFailed": "图片压缩失败。",
-    "compressing": "正在压缩...",
+    "processing": "正在处理...",
     "dropHere": "在此处释放图片...",
     "dragOrClick": "拖拽图片到这里，或点击选择文件"
   },

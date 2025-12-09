@@ -4,25 +4,7 @@ import { getPrompts, Locale } from '@/lib/prompts'
 import { PhotoshootStyle } from '@/lib/prompts/photoshoot'
 import { ICharacterAsset, IEnvironmentAsset } from '@/types'
 import { Part } from '@google/genai'
-import sharp from 'sharp'
-
-// Helper function to compress an image
-async function compressImage(base64Image: string): Promise<string> {
-  try {
-    const imageBuffer = Buffer.from(
-      base64Image.includes(',') ? base64Image.split(',')[1] : base64Image,
-      'base64',
-    )
-    const compressedImageBuffer = await sharp(imageBuffer)
-      .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true })
-      .jpeg({ quality: 80 })
-      .toBuffer()
-    return compressedImageBuffer.toString('base64')
-  } catch (error) {
-    console.error('Error compressing image:', error)
-    return base64Image.includes(',') ? base64Image.split(',')[1] : base64Image
-  }
-}
+import { compressImage } from '@/lib/image-utils'
 
 export async function POST(req: Request) {
   try {

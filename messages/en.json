@@ -26,8 +26,7 @@
   "ImageUploader": {
     "fileRejected": "Invalid file. Please make sure it's an image.",
     "imageUploaded": "Image uploaded successfully.",
-    "compressionFailed": "Image compression failed.",
-    "compressing": "Compressing...",
+    "processing": "Processing...",
     "dropHere": "Drop the image here...",
     "dragOrClick": "Drag 'n' drop an image here, or click to select a file"
   },

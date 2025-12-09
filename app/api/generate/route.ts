@@ -1,8 +1,8 @@
 import { GEMINI_IMAGE_MODEL_NAME, genAI } from '@/lib/gemini'
 import { Part } from '@google/genai'
 import { NextResponse } from 'next/server'
-import sharp from 'sharp'
 import { getPrompts, Locale } from '@/lib/prompts'
+import { compressImage } from '@/lib/image-utils'
 import {
   IAsset,
   IPersonAppearance,
@@ -52,34 +52,6 @@ interface ImageConfig {
 
 interface ApiConfig {
   imageConfig?: ImageConfig
-}
-
-// Helper function to compress an image
-async function compressImage(base64Image: string): Promise<string> {
-  try {
-    const imageBuffer = Buffer.from(
-      base64Image.includes(',') ? base64Image.split(',')[1] : base64Image,
-      'base64',
-    )
-
-    // Get original image metadata
-    const originalMetadata = await sharp(imageBuffer).metadata()
-
-    // Compress and resize the image
-    const compressedImageBuffer = await sharp(imageBuffer)
-      .resize(1024, 1024, { fit: 'inside', withoutEnlargement: true }) // Resize to max 1024x1024
-      .jpeg({ quality: 80 }) // Convert to JPEG with quality 80
-      .toBuffer()
-
-    // Get compressed image metadata
-    const compressedMetadata = await sharp(compressedImageBuffer).metadata()
-
-    return compressedImageBuffer.toString('base64')
-  } catch (error) {
-    console.error('Error compressing image:', error)
-    // If compression fails, return the original image to avoid breaking the flow
-    return base64Image.includes(',') ? base64Image.split(',')[1] : base64Image
-  }
 }
 
 export async function POST(req: Request) {

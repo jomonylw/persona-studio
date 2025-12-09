@@ -102,7 +102,7 @@ export function CharacterEditor({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userIdea,
-          image: referenceImage,
+          initialImage: referenceImage,
           model: textModel,
           locale,
         }),
@@ -133,6 +133,7 @@ export function CharacterEditor({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           userIdea,
+          initialImage: referenceImage,
           model: textModel,
           locale,
         }),
