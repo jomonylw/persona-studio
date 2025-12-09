@@ -96,7 +96,8 @@
       "cctv": "监控视角",
       "mirror_selfie": "镜中自拍",
       "portrait_closeup": "写真特写",
-      "fuji_instax": "富士 Instax"
+      "fuji_instax": "富士 Instax",
+      "dark_moody": "暗调情绪"
     },
     "generatingToast": {
       "success": "照片生成成功！",

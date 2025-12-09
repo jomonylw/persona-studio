@@ -96,7 +96,8 @@
       "cctv": "CCTV",
       "mirror_selfie": "Mirror Selfie",
       "portrait_closeup": "Portrait Closeup",
-      "fuji_instax": "Fuji Instax"
+      "fuji_instax": "Fuji Instax",
+      "dark_moody": "Dark Moody"
     },
     "generatingToast": {
       "success": "Photo generated successfully!",

@@ -14,6 +14,7 @@ export type PhotoshootStyle =
   | 'portrait_closeup'
   | 'fuji_instax'
   | 'japanese_film'
+  | 'dark_moody'
 
 export interface StyleConfig {
   role: {
