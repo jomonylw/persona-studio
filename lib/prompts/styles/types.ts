@@ -13,6 +13,7 @@ export type PhotoshootStyle =
   | 'mirror_selfie'
   | 'portrait_closeup'
   | 'fuji_instax'
+  | 'japanese_film'
 
 export interface StyleConfig {
   role: {

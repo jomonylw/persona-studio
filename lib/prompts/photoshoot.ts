@@ -16,6 +16,7 @@ import {
   mirrorSelfie,
   portraitCloseup,
   fujiInstax,
+  japaneseFilm,
 } from './styles'
 
 export type { PhotoshootStyle }
@@ -48,6 +49,8 @@ const getStyleConfig = (style: PhotoshootStyle): StyleConfig => {
       return portraitCloseup
     case 'fuji_instax':
       return fujiInstax
+    case 'japanese_film':
+      return japaneseFilm
     case 'candid_street':
     default:
       return candidStreet
@@ -220,4 +223,5 @@ export const getStyles = (): PhotoshootStyle[] => [
   'mirror_selfie',
   'portrait_closeup',
   'fuji_instax',
+  'japanese_film',
 ]
