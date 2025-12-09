@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import Image from 'next/image'
 import { Button } from '@/components/ui/button'
+import { toast } from 'sonner'
 import { InspireButton } from './inspire-button'
 import { Textarea } from '@/components/ui/textarea'
 import {
@@ -190,7 +191,7 @@ export function PhotoshootStudio() {
       )
 
       if (selectedCharacters.length === 0) {
-        console.error('Selection is not valid')
+        toast.error(t('generatingToast.noCharacter'))
         return
       }
 
@@ -266,6 +267,7 @@ export function PhotoshootStudio() {
       }
 
       const result = await response.json()
+      toast.success(t('generatingToast.success'))
 
       const newHistoryEntry: IImageHistory = {
         id: `hist-${Date.now()}`,
@@ -302,6 +304,7 @@ export function PhotoshootStudio() {
         setActivePhotoId(newPhoto.id)
       }
     } catch (error) {
+      toast.error(t('generatingToast.error'))
       console.error('Failed to generate photo:', error)
     } finally {
       setIsGenerating(false)

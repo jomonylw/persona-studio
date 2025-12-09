@@ -96,6 +96,11 @@
       "mirror_selfie": "镜中自拍",
       "portrait_closeup": "写真特写",
       "fuji_instax": "富士 Instax"
+    },
+    "generatingToast": {
+      "success": "照片生成成功！",
+      "error": "照片生成失败。",
+      "noCharacter": "请先选择一个人物。"
     }
   },
   "CharacterCreator": {

@@ -96,6 +96,11 @@
       "mirror_selfie": "Mirror Selfie",
       "portrait_closeup": "Portrait Closeup",
       "fuji_instax": "Fuji Instax"
+    },
+    "generatingToast": {
+      "success": "Photo generated successfully!",
+      "error": "Failed to generate photo.",
+      "noCharacter": "Please select a character first."
     }
   },
   "CharacterCreator": {
