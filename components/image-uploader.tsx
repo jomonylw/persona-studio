@@ -45,19 +45,45 @@ export function ImageUploader({
         const file = acceptedFiles[0]
         setIsLoading(true)
         try {
+          const controller = new AbortController()
+          const timeoutId = setTimeout(() => controller.abort(), 15000) // 15s timeout
+
           const compressedFile = await imageCompression(file, {
             maxSizeMB: 1,
             maxWidthOrHeight: 1024,
-            useWebWorker: true,
+            useWebWorker: false, // Disable web worker to prevent file reference issues on mobile
+            signal: controller.signal,
           })
+
+          clearTimeout(timeoutId)
+
           const base64 = await fileToBase64(compressedFile)
           if (isUserUploadingRef) {
             isUserUploadingRef.current = true
           }
           setImage(base64)
           toast.success(t('imageUploaded'))
-        } catch (error) {
-          toast.error(t('compressionFailed'))
+        } catch (error: any) {
+          let errorMessage: string
+          if (error instanceof Error) {
+            errorMessage = error.message
+          } else if (error?.target?.error) {
+            errorMessage = error.target.error.message || 'FileReader error'
+          } else {
+            errorMessage = String(error)
+          }
+
+          console.error('Image compression error:', error)
+
+          if (error instanceof Error && error.name === 'AbortError') {
+            toast.error(
+              `Image compression timed out. Please try a smaller file.`,
+            )
+          } else {
+            toast.error(t('compressionFailed'), {
+              description: errorMessage,
+            })
+          }
         } finally {
           setIsLoading(false)
         }
