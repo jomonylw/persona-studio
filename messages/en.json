@@ -97,7 +97,8 @@
       "mirror_selfie": "Mirror Selfie",
       "portrait_closeup": "Portrait Closeup",
       "fuji_instax": "Fuji Instax",
-      "dark_moody": "Dark Moody"
+      "dark_moody": "Dark Moody",
+      "ecommerce_model": "E-commerce Model"
     },
     "generatingToast": {
       "success": "Photo generated successfully!",

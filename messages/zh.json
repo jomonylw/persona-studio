@@ -97,7 +97,8 @@
       "mirror_selfie": "镜中自拍",
       "portrait_closeup": "写真特写",
       "fuji_instax": "富士 Instax",
-      "dark_moody": "暗调情绪"
+      "dark_moody": "暗调情绪",
+      "ecommerce_model": "电商模特"
     },
     "generatingToast": {
       "success": "照片生成成功！",

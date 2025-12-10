@@ -15,6 +15,7 @@ export type PhotoshootStyle =
   | 'fuji_instax'
   | 'japanese_film'
   | 'dark_moody'
+  | 'ecommerce_model'
 
 export interface StyleConfig {
   role: {
