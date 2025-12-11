@@ -119,7 +119,7 @@ export function PhotoshootStudio() {
       )
 
       if (selectedCharacters.length === 0) {
-        console.error('Please select characters first.')
+        toast.error(t('inspiringToast.noCharacter'))
         return
       }
 
@@ -156,7 +156,9 @@ export function PhotoshootStudio() {
 
       const result = await response.json()
       setPrompt(result.prompt)
+      toast.success(t('inspiringToast.success'))
     } catch (error) {
+      toast.error(t('inspiringToast.error'))
       console.error('Failed to get prompt:', error)
     } finally {
       setIsInspiring(false)

@@ -104,6 +104,11 @@
       "success": "Photo generated successfully!",
       "error": "Failed to generate photo.",
       "noCharacter": "Please select a character first."
+    },
+    "inspiringToast": {
+      "success": "Inspiration generated successfully!",
+      "error": "Failed to generate inspiration.",
+      "noCharacter": "Please select a character first."
     }
   },
   "CharacterCreator": {

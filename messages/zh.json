@@ -104,6 +104,11 @@
       "success": "照片生成成功！",
       "error": "照片生成失败。",
       "noCharacter": "请先选择一个人物。"
+    },
+    "inspiringToast": {
+      "success": "灵感生成成功！",
+      "error": "灵感生成失败。",
+      "noCharacter": "请先选择一个人物。"
     }
   },
   "CharacterCreator": {
