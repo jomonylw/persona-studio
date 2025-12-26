@@ -1,12 +1,10 @@
-import { genAI, GEMINI_TEXT_MODEL_NAME } from '@/lib/gemini'
 import { extractJson } from '@/lib/utils'
 import { NextResponse } from 'next/server'
 import { getPrompts } from '@/lib/prompts'
 import { IPersonAppearance } from '@/types'
 import { Part } from '@google/genai'
 import { compressImage } from '@/lib/image-utils'
-
-const MODEL_NAME = GEMINI_TEXT_MODEL_NAME
+import { generateContent } from '@/lib/llm'
 
 export async function POST(req: Request) {
   try {
@@ -46,15 +44,10 @@ export async function POST(req: Request) {
       })
     }
 
-    const result = await genAI.models.generateContent({
-      model: model || MODEL_NAME,
+    const text = await generateContent({
+      model,
       contents: [{ role: 'user', parts: contents }],
     })
-
-    const text = result.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!text) {
-      throw new Error('AI did not return any text.')
-    }
 
     const cleanedJson = extractJson(text)
     if (!cleanedJson) {

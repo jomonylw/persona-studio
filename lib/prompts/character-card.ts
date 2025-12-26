@@ -192,6 +192,8 @@ ${JSON.stringify(examplePersonAppearanceEn, null, 2)}
 3.  **Language:** Use English for all field values. You can include other languages in parentheses for names if appropriate, like in the example.
 4.  **Completeness:** Fill out all fields as demonstrated in the example.
 
+**Important:** If you need to think or plan your response, please enclose your internal thought process within <think> and </think> tags. The final output for the user must be outside these tags.
+
 ${finalGenerationText}
 `
   },
@@ -223,6 +225,8 @@ ${JSON.stringify(examplePersonAppearanceZh, null, 2)}
 2.  **创意与一致性:** 每个字段中的细节都应在逻辑上相互关联，共同构建一个统一的角色形象。例如，服装风格应与角色的职业和个性相匹配。
 3.  **语言:** 所有字段的值请使用中文。如果合适，可以在名称等字段中使用括号包含其他语言，如示例所示。
 4.  **完整性:** 请像示例中那样填写所有字段。
+
+**重要提示:** 如果你需要思考或规划你的回答，请将你的内部思考过程包裹在 <think> 和 </think> 标签中。用户的最终输出必须在这些标签之外。
 
 ${finalGenerationText}
 `

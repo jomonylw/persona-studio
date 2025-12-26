@@ -118,6 +118,8 @@ const generatePrompt = (
         **输出要求:**
         - 直接输出最终的摄影指令，语言要充满艺术感和指导性。
         - 整体描述要符合"${config.coreStyle.style.zh}"的调性。
+
+        **重要提示:** 如果你需要思考或规划你的回答，请将你的内部思考过程包裹在 <think> 和 </think> 标签中。用户的最终输出必须在这些标签之外。
       `
     console.log(`Photoshoot Prompt (zh) [${style}]:`, prompt)
     return prompt
@@ -166,6 +168,8 @@ const generatePrompt = (
     **Output Requirements:**
     - Directly output the final photography brief in artistic and evocative language.
     - The tone should fit the "${config.coreStyle.style.en}" aesthetic.
+    
+    **Important:** If you need to think or plan your response, please enclose your internal thought process within <think> and </think> tags. The final output for the user must be outside these tags.
   `
   console.log(`Photoshoot Prompt (en) [${style}]:`, prompt)
   return prompt

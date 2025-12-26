@@ -38,6 +38,8 @@ ${JSON.stringify(exampleEnvironmentEn, null, 2)}
 5.  **Name Field:** Create a short, catchy title/name for the environment (3-8 words).
 6.  **Prompt Field:** Generate a rich, descriptive paragraph that focuses heavily on the environment's visual and sensory details, including core identity, key elements, atmosphere & mood, sensory details, and overall vibe.
 
+**Important:** If you need to think or plan your response, please enclose your internal thought process within <think> and </think> tags. The final output for the user must be outside these tags.
+
 ${finalGenerationText}
 `
   },
@@ -65,6 +67,8 @@ ${JSON.stringify(exampleEnvironmentZh, null, 2)}
 4.  **完整性:** 请像示例中那样填写"name"和"prompt"两个字段。
 5.  **名称字段:** 为环境创建一个简短、吸引人的标题/名称（3-8个字）。
 6.  **提示字段:** 生成一段丰富、具象的描述，重点在于环境的视觉和感官细节，包括核心特征、关键元素、氛围与情调、感官细节和整体氛围。
+
+**重要提示:** 如果你需要思考或规划你的回答，请将你的内部思考过程包裹在 <think> 和 </think> 标签中。用户的最终输出必须在这些标签之外。
 
 ${finalGenerationText}
 `

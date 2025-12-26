@@ -12,6 +12,8 @@ If the user provided an idea, use it as a guide, but prioritize the visual infor
 1.  **Analyze the Image:** Describe the character in the image, covering their identity (age, gender, ethnicity), physical appearance (build, posture), facial features (face shape, eyes, hair), fashion, and overall vibe.
 2.  **Synthesize with User Idea:** If there's a user idea, merge it with the image details. The image is the primary source of truth; use the text to fill in gaps or refine details.
 3.  **Create a Cohesive Paragraph:** Your output must be a single, evocative paragraph that paints a clear, detailed picture of the character.
+
+**Important:** If you need to think or plan your response, please enclose your internal thought process within <think> and </think> tags. The final output for the user must be outside these tags.
 `
     }
     if (userIdea) {
@@ -29,6 +31,8 @@ Take the user's idea and expand it into a rich, descriptive paragraph that focus
 5.  **Vibe:** Capture their expression and primary mood.
 
 Your output should be a single, cohesive, and evocative paragraph that paints a clear picture of the character, ready to be turned into a structured character card.
+
+**Important:** If you need to think or plan your response, please enclose your internal thought process within <think> and </think> tags. The final output for the user must be outside these tags.
 `
     } else {
       return `
@@ -43,6 +47,8 @@ Generate a rich, descriptive paragraph that focuses heavily on the character's *
 5.  **Vibe:** Capture their expression and primary mood.
 
 Your output should be a single, cohesive, and evocative paragraph that paints a clear picture of the character, ready to be turned into a structured character card.
+
+**Important:** If you need to think or plan your response, please enclose your internal thought process within <think> and </think> tags. The final output for the user must be outside these tags.
 `
     }
   },
@@ -59,6 +65,8 @@ Your output should be a single, cohesive, and evocative paragraph that paints a 
 1.  **分析图片:** 描述图片中的角色，涵盖其身份（年龄、性别、种族）、身体外貌（体型、体态）、面部特征（脸型、眼睛、发型）、时尚风格和整体气质。
 2.  **与用户想法结合:** 如果有用户想法，请将其与图片细节融合。图片是主要信息来源；使用文字来填补空白或完善细节。
 3.  **创建连贯的段落:** 你的输出必须是一个单一、富有画面感的段落，清晰、详细地描绘出角色形象。
+
+**重要提示:** 如果你需要思考或规划你的回答，请将你的内部思考过程包裹在 <think> 和 </think> 标签中。用户的最终输出必须在这些标签之外。
 `
     }
     if (userIdea) {
@@ -76,6 +84,8 @@ Your output should be a single, cohesive, and evocative paragraph that paints a 
 5.  **气质氛围:** 捕捉他们的表情和主要情绪。
 
 你的输出应该是一个单一、连贯且富有画面感的段落，清晰地描绘出角色形象，以便后续转化为结构化的人物卡片。
+
+**重要提示:** 如果你需要思考或规划你的回答，请将你的内部思考过程包裹在 <think> 和 </think> 标签中。用户的最终输出必须在这些标签之外。
 `
     } else {
       return `
@@ -90,6 +100,8 @@ Your output should be a single, cohesive, and evocative paragraph that paints a 
 5.  **气质氛围:** 捕捉他们的表情和主要情绪。
 
 你的输出应该是一个单一、连贯且富有画面感的段落，清晰地描绘出角色形象，以便后续转化为结构化的人物卡片。
+
+**重要提示:** 如果你需要思考或规划你的回答，请将你的内部思考过程包裹在 <think> 和 </think> 标签中。用户的最终输出必须在这些标签之外。
 `
     }
   },

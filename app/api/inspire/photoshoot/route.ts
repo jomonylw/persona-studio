@@ -1,10 +1,10 @@
 import { NextResponse } from 'next/server'
-import { genAI, GEMINI_IMAGE_MODEL_NAME } from '@/lib/gemini'
 import { getPrompts, Locale } from '@/lib/prompts'
 import { PhotoshootStyle } from '@/lib/prompts/photoshoot'
 import { ICharacterAsset, IEnvironmentAsset } from '@/types'
 import { Part } from '@google/genai'
 import { compressImage } from '@/lib/image-utils'
+import { generateContent } from '@/lib/llm'
 
 export async function POST(req: Request) {
   try {
@@ -103,21 +103,15 @@ export async function POST(req: Request) {
       }
       return part
     })
-    console.log(
-      'Sending to Gemini in photoshoot:',
-      JSON.stringify([{ role: 'user', parts: sanitizedContents }], null, 2),
-    )
+    // console.log(
+    //   'Sending to Gemini in photoshoot:',
+    //   JSON.stringify([{ role: 'user', parts: sanitizedContents }], null, 2),
+    // )
 
-    const result = await genAI.models.generateContent({
-      model: model || GEMINI_IMAGE_MODEL_NAME,
+    const eventText = await generateContent({
+      model,
       contents: [{ role: 'user', parts: contents }],
     })
-
-    const eventText = result.candidates?.[0]?.content?.parts?.[0]?.text?.trim()
-
-    if (!eventText) {
-      throw new Error('No event text returned from the API.')
-    }
 
     return NextResponse.json({ prompt: eventText })
   } catch (error) {
