@@ -88,7 +88,26 @@ export async function generateContent(
       }
 
       if (part.text) {
-        fullText += part.text
+        let textPart = part.text
+
+        // Handle unclosed <think> tags
+        // If this part opens a <think> tag but doesn't close it...
+        if (textPart.includes('<think>') && !textPart.includes('</think>')) {
+          // Check if any SUBSEQUENT part contains the closing tag
+          const hasClosingTagLater = parts
+            .slice(index + 1)
+            .some((p) => p.text && p.text.includes('</think>'))
+
+          // If no subsequent part closes it, assume it ends at the end of this part
+          if (!hasClosingTagLater) {
+            console.log(
+              `Part ${index} has unclosed <think> tag and no future closing tag found. Appending </think>.`,
+            )
+            textPart += '</think>'
+          }
+        }
+
+        fullText += textPart
       }
     })
     console.log('--------------------------')
